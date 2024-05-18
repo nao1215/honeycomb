@@ -30,10 +30,25 @@ brew install nao1215/tap/honeycomb
 - Linux
 - macOS
 - Windows
-- go 1.20 or later
+- go 1.21 or later
 
 ## How to use
-Work in progress.
+Work in progress. The features described are currently in an implemented status.
+
+### Log in with an existing account
+Honeycomb checks for the presence of a private key available at `${XDG_CONFIG_HOME}/.config/honeycomb/private_key`. If no private key is found, the user will be prompted to enter one. Honeycomb validates the private key and only stores the correct private key locally.
+
+```shell
+$ honeycomb 
+🐝 Please input a private key that starts with 'nsec'.
+🐝 The private key will be saved to /home/nao/.config/honeycomb/private_key
+
+> nsec-...                                                         
+
+ESC or <Ctrl-C>:quit  Enter:submit
+```
+※ cannot log in with an existing account yet.
+
 
 ## Contributing
 First off, thanks for taking the time to contribute! See [CONTRIBUTING.md](./CONTRIBUTING.md) for more information.  Contributions are not only related to development. For example, GitHub Star and [GitHub Sponsor](https://github.com/sponsors/nao1215) motivates me to develop!
@@ -42,7 +57,7 @@ First off, thanks for taking the time to contribute! See [CONTRIBUTING.md](./CON
 [WIP]
 
 **For Developers**
-When adding new features or fixing bugs, please write unit tests. The homeycomb is unit tested for all packages as the unit test tree map below shows.
+When adding new features or fixing bugs, please write unit tests.
 
 ![Unit Test Tree Map](./doc/img/cover-tree.svg)
 

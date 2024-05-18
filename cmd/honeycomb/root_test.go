@@ -18,7 +18,7 @@ func TestExecute(t *testing.T) { //nolint:paralleltest
 	}{
 		{
 			name:    "success",
-			args:    []string{""},
+			args:    []string{"honeycomb", "version"},
 			wantErr: false,
 		},
 		{
