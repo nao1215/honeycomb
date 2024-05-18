@@ -33,7 +33,6 @@ linters:
     - misspell
     - nakedret
     - noctx
-    - nolintlint
     - paralleltest
     - prealloc
     - rowserrcheck
