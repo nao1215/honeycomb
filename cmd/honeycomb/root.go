@@ -2,6 +2,9 @@
 package cmd
 
 import (
+	"os"
+
+	"github.com/nao1215/honeycomb/tui"
 	"github.com/spf13/cobra"
 )
 
@@ -21,6 +24,8 @@ func newRootCmd() *cobra.Command {
 
 // Execute run honeycomb process.
 func Execute() error {
-	rootCmd := newRootCmd()
-	return rootCmd.Execute()
+	if len(os.Args) == 1 {
+		return tui.Run()
+	}
+	return newRootCmd().Execute()
 }
