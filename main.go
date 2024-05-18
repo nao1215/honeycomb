@@ -3,8 +3,13 @@ package main
 
 import (
 	"fmt"
+	"os"
+
+	hc "github.com/nao1215/honeycomb/cmd/honeycomb"
 )
 
 func main() {
-	fmt.Println("Hello, world!")
+	if err := hc.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "honeycomb: %s\n", err.Error())
+	}
 }

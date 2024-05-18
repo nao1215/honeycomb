@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-## gup version**
+## honeycomb version**
 v0.y.z
 
 ## Description (About the problem)
