@@ -44,6 +44,9 @@ tools: ## Install dependency tools
 	$(GO_INSTALL) github.com/Songmu/ghch/cmd/ghch@latest
 	$(GO_INSTALL) github.com/google/wire/cmd/wire@latest
 
+generate: ## Generate code from templates
+	$(GO) generate ./...
+
 .DEFAULT_GOAL := help
 help:  
 	@grep -E '^[0-9a-zA-Z_-]+[[:blank:]]*:.*?## .*$$' $(MAKEFILE_LIST) | sort \
