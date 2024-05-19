@@ -16,6 +16,14 @@ const (
 	nSecretKeyFilePath = "private_key"
 )
 
+// PrivateKey is the type of the private key.
+type PrivateKey string
+
+// String returns the string representation of the private key.
+func (p PrivateKey) String() string {
+	return string(p)
+}
+
 // PublicKey is the type of the public key.
 type PublicKey string
 
@@ -36,6 +44,11 @@ func (p PublicKey) ToNPublicKey() (NPublicKey, error) {
 // NPublicKey is the type of the nostr public key.
 type NPublicKey string
 
+// String returns the string representation of the public key.
+func (p NPublicKey) String() string {
+	return string(p)
+}
+
 // NSecretKey is the type of the private key.
 type NSecretKey string
 
@@ -50,9 +63,23 @@ func (p NSecretKey) Validate() error {
 		return ErrEmptyPrivateKey
 	}
 	if _, _, err := nip19.Decode(p.String()); err != nil {
-		return fmt.Errorf("%w: input=%s: %s", ErrInvalidPrivateKey, p.String(), err.Error())
+		return fmt.Errorf("%w: %s", ErrInvalidPrivateKey, err.Error())
 	}
 	return nil
+}
+
+// ToPrivateKey returns the private key from the private key.
+func (p NSecretKey) ToPrivateKey() (PrivateKey, error) {
+	_, pk, err := nip19.Decode(p.String())
+	if err != nil {
+		return "", fmt.Errorf("%w: %s", ErrInvalidPrivateKey, err.Error())
+	}
+
+	pkStr, ok := pk.(string)
+	if !ok {
+		return "", fmt.Errorf("failed to convert private key to string")
+	}
+	return PrivateKey(pkStr), nil
 }
 
 // ToPublicKey returns the public key from the private key.

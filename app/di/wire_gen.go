@@ -22,7 +22,9 @@ func NewHoneyComb(ctx context.Context) (*HoneyComb, error) {
 	authorGetter := interactor.NewAuthorGetter(relayFinder, eventsLister)
 	profileGetter := interactor.NewProfileGetter(relayFinder, eventsLister)
 	followLister := interactor.NewFollowLister(relayFinder, eventsLister)
-	honeyComb := newHoneyComb(authorGetter, profileGetter, followLister)
+	poster := external.NewPoster()
+	interactorPoster := interactor.NewPoster(poster)
+	honeyComb := newHoneyComb(authorGetter, profileGetter, followLister, interactorPoster)
 	return honeyComb, nil
 }
 
@@ -35,9 +37,11 @@ type HoneyComb struct {
 		// AuthorGetter is the interface that wraps the basic GetAuthor method.
 		ProfileGetter
 	usecase.FollowLister
+	usecase.Poster
 
 	// ProfileGetter is the interface that wraps the basic GetProfile method.
-	// FollowLister is the interface that wraps the basic ListFollow method.
+
+	// Poster is the interface that wraps the basic Post method.
 }
 
 // newHoneyComb creates a new HoneyComb.
@@ -45,10 +49,12 @@ func newHoneyComb(
 	authorGetter usecase.AuthorGetter,
 	profileGetter usecase.ProfileGetter,
 	followLister usecase.FollowLister,
+	poster usecase.Poster,
 ) *HoneyComb {
 	return &HoneyComb{
 		AuthorGetter:  authorGetter,
 		ProfileGetter: profileGetter,
 		FollowLister:  followLister,
+		Poster:        poster,
 	}
 }

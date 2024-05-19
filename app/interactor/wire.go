@@ -15,4 +15,6 @@ var Set = wire.NewSet(
 	wire.Bind(new(usecase.AuthorGetter), new(*AuthorGetter)),
 	NewFollowLister,
 	wire.Bind(new(usecase.FollowLister), new(*FollowLister)),
+	NewPoster,
+	wire.Bind(new(usecase.Poster), new(*Poster)),
 )
