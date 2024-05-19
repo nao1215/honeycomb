@@ -11,4 +11,8 @@ import (
 var Set = wire.NewSet(
 	NewProfileGetter,
 	wire.Bind(new(usecase.ProfileGetter), new(*ProfileGetter)),
+	NewAuthorGetter,
+	wire.Bind(new(usecase.AuthorGetter), new(*AuthorGetter)),
+	NewFollowLister,
+	wire.Bind(new(usecase.FollowLister), new(*FollowLister)),
 )

@@ -62,7 +62,8 @@ ESC or <Ctrl-C>:quit  Enter:submit
 - [ ] Print timeline (TUI) 
 - [ ] Post message (TUI)
 - [ ] Like message (TUI)
-- [ ] Follow user (TUI)
+- [x] Get Follow user
+- [ ] List up Follow user (TUI)
 - [ ] Unfollow user (TUI)
 - [ ] Sign up
 
@@ -77,6 +78,7 @@ First off, thanks for taking the time to contribute! See [CONTRIBUTING.md](./CON
 If you would like to send comments such as "find a bug" or "request for additional features" to the developer, please use one of the following contacts.
 
 - [GitHub Issue](https://github.com/nao1215/honeycomb/issues)
+- [Nostr](https://nostter.app/npub1xe406xww9s4vla878wd4h6605wqaka9wdammxvpd5he9nysf2z7q0f7804)
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
