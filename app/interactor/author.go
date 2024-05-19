@@ -51,6 +51,11 @@ func (a *AuthorGetter) GetAuthor(ctx context.Context, input *usecase.AuthorGette
 		return nil, err
 	}
 
+	privateKey, err := input.NSecretKey.ToPrivateKey()
+	if err != nil {
+		return nil, err
+	}
+
 	events, err := a.EventsLister.ListEvents(ctx, &service.EventsListerInput{
 		Filter: model.ProfileFilter(pub),
 		Relay:  relay.Relay,
@@ -67,6 +72,7 @@ func (a *AuthorGetter) GetAuthor(ctx context.Context, input *usecase.AuthorGette
 	return &usecase.AuthorGetterOutput{
 		Author: &model.Author{
 			NSecretKey: input.NSecretKey,
+			PrivateKey: privateKey,
 			PublicKey:  pub,
 			NPublicKey: npub,
 			Profile:    profiles[0],

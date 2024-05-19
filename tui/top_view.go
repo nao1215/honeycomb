@@ -69,7 +69,6 @@ func Run() error {
 		fmt.Printf("DisplayName:%s\n", v.Profile.DisplayName)
 		fmt.Printf("Public Key:%s\n", v.PublicKey)
 	}
-
 	fmt.Println()
 	fmt.Println("work in progress...🐝")
 	return nil
