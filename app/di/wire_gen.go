@@ -10,7 +10,6 @@ import (
 	"context"
 	"github.com/nao1215/honeycomb/app/external"
 	"github.com/nao1215/honeycomb/app/interactor"
-	"github.com/nao1215/honeycomb/app/service"
 	"github.com/nao1215/honeycomb/app/usecase"
 )
 
@@ -20,8 +19,10 @@ import (
 func NewHoneyComb(ctx context.Context) (*HoneyComb, error) {
 	relayFinder := external.NewRelayFinder()
 	eventsLister := external.NewEventsLister()
+	authorGetter := interactor.NewAuthorGetter(relayFinder, eventsLister)
 	profileGetter := interactor.NewProfileGetter(relayFinder, eventsLister)
-	honeyComb := newHoneyComb(profileGetter, relayFinder)
+	followLister := interactor.NewFollowLister(relayFinder, eventsLister)
+	honeyComb := newHoneyComb(authorGetter, profileGetter, followLister)
 	return honeyComb, nil
 }
 
@@ -29,21 +30,25 @@ func NewHoneyComb(ctx context.Context) (*HoneyComb, error) {
 
 // HoneyComb has business logic for honeycomb application.
 type HoneyComb struct {
-	usecase.ProfileGetter
-	service.
-		// ProfileGetter is the interface that wraps the basic GetProfile method.
-		RelayFinder
+	usecase.AuthorGetter
+	usecase.
+		// AuthorGetter is the interface that wraps the basic GetAuthor method.
+		ProfileGetter
+	usecase.FollowLister
 
-	// RelayFinder is the interface that wraps the basic RelayFinder method.
+	// ProfileGetter is the interface that wraps the basic GetProfile method.
+	// FollowLister is the interface that wraps the basic ListFollow method.
 }
 
 // newHoneyComb creates a new HoneyComb.
 func newHoneyComb(
+	authorGetter usecase.AuthorGetter,
 	profileGetter usecase.ProfileGetter,
-	relayFinder service.RelayFinder,
+	followLister usecase.FollowLister,
 ) *HoneyComb {
 	return &HoneyComb{
+		AuthorGetter:  authorGetter,
 		ProfileGetter: profileGetter,
-		RelayFinder:   relayFinder,
+		FollowLister:  followLister,
 	}
 }

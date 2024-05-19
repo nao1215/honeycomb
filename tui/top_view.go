@@ -22,38 +22,55 @@ func Run() error {
 		return nil
 	}
 
+	// TODO: Delete under code.
 	ctx := context.Background()
 	honeyComb, err := di.NewHoneyComb(ctx)
 	if err != nil {
 		return err
 	}
 
-	output, err := honeyComb.ProfileGetter.GetProfile(ctx, &usecase.ProfileGetterInput{
-		NsecretKey: nsecKey,
+	authorOutput, err := honeyComb.GetAuthor(ctx, &usecase.AuthorGetterInput{
+		NSecretKey: nsecKey,
+	})
+	if err != nil {
+		return err
+	}
+	defer authorOutput.Author.Close() //nolint:errcheck
+
+	follow, err := honeyComb.ListFollow(ctx, &usecase.FollowListerInput{
+		PublicKey:      authorOutput.Author.PublicKey,
+		ConnectedRelay: authorOutput.Author.ConnectedRelay,
 	})
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("[WebSite]")
-	fmt.Printf("%s\n", output.Profile.Website)
+	fmt.Printf("%s\n", authorOutput.Author.Profile.Website)
 	fmt.Println("[Nip05]")
-	fmt.Printf("%s\n", output.Profile.Nip05)
+	fmt.Printf("%s\n", authorOutput.Author.Profile.Nip05)
 	fmt.Println("[Picture]")
-	fmt.Printf("%s\n", output.Profile.Picture)
+	fmt.Printf("%s\n", authorOutput.Author.Profile.Picture)
 	fmt.Println("[Lud16]")
-	fmt.Printf("%s\n", output.Profile.Lud16)
+	fmt.Printf("%s\n", authorOutput.Author.Profile.Lud16)
 	fmt.Println("[DisplayName]")
-	fmt.Printf("%s\n", output.Profile.DisplayName)
+	fmt.Printf("%s\n", authorOutput.Author.Profile.DisplayName)
 	fmt.Println("[About]")
-	fmt.Printf("%s\n", output.Profile.About)
+	fmt.Printf("%s\n", authorOutput.Author.Profile.About)
 	fmt.Println("[Name]")
-	fmt.Printf("%s\n", output.Profile.Name)
+	fmt.Printf("%s\n", authorOutput.Author.Profile.Name)
 	fmt.Println("[Bot]")
-	fmt.Printf("%t\n", output.Profile.Bot)
+	fmt.Printf("%t\n", authorOutput.Author.Profile.Bot)
 	fmt.Println("[NpublicKey]")
-	fmt.Printf("%s\n", output.NpublicKey)
+	fmt.Printf("%s\n\n", authorOutput.Author.NPublicKey)
 
+	for i, v := range follow.Follows {
+		fmt.Printf("[Follow:%d]\n", i+1)
+		fmt.Printf("DisplayName:%s\n", v.Profile.DisplayName)
+		fmt.Printf("Public Key:%s\n", v.PublicKey)
+	}
+
+	fmt.Println()
 	fmt.Println("work in progress...🐝")
 	return nil
 }
