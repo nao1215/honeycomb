@@ -5,7 +5,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nao1215/honeycomb/config"
+	"github.com/nao1215/honeycomb/app/model"
 )
 
 // privateKeyInputModel is the model for the private key input view.
@@ -56,14 +56,14 @@ func (m *privateKeyInputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 
-			pk := config.PrivateKey(m.textInput.Value())
+			pk := model.NSecretKey(m.textInput.Value())
 			if err := pk.Validate(); err != nil {
 				m.status = statusPrivateKeyValidateErr
 				m.err = err
 				return m, nil
 			}
 
-			if err := config.WritePrivateKey(pk); err != nil {
+			if err := model.WriteNSecretKey(pk); err != nil {
 				m.status = statusPrivateKeySaveErr
 				m.err = err
 			}
@@ -82,7 +82,7 @@ func (m *privateKeyInputModel) View() string {
 		text := fmt.Sprintf(
 			"%s\n%s%s\n\n%s\n%s\n%s\n",
 			"🐝 Please input a private key that starts with 'nsec'.",
-			"🐝 The private key will be saved to ", config.PrivateKeyFilePath(),
+			"🐝 The private key will be saved to ", model.NSecretKeyFilePath(),
 			m.textInput.View(),
 			red(fmt.Sprintf("  Warning: %s", m.err.Error())),
 			subtle("ESC or <Ctrl-C>:quit  Enter:submit"),
@@ -94,7 +94,7 @@ func (m *privateKeyInputModel) View() string {
 		return fmt.Sprintf(
 			"%s\n%s%s\n\n%s\n\n%s\n",
 			"🐝 Please input a private key that starts with 'nsec'.",
-			"🐝 The private key will be saved to ", config.PrivateKeyFilePath(),
+			"🐝 The private key will be saved to ", model.NSecretKeyFilePath(),
 			m.textInput.View(),
 			subtle("ESC or <Ctrl-C>:quit  Enter:submit"),
 		)

@@ -2,6 +2,9 @@
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
+[![Build](https://github.com/nao1215/honeycomb/actions/workflows/build.yml/badge.svg)](https://github.com/nao1215/honeycomb/actions/workflows/build.yml)
+[![MultiPlatformUnitTest](https://github.com/nao1215/honeycomb/actions/workflows/unit_test.yml/badge.svg)](https://github.com/nao1215/honeycomb/actions/workflows/unit_test.yml)
+[![reviewdog](https://github.com/nao1215/honeycomb/actions/workflows/reviewdog.yml/badge.svg)](https://github.com/nao1215/honeycomb/actions/workflows/reviewdog.yml)
 
 > [!CAUTION]
 > Work in progress. Not ready for production.
@@ -49,18 +52,26 @@ ESC or <Ctrl-C>:quit  Enter:submit
 ```
 ※ cannot log in with an existing account yet.
 
+### Implement status
+- [x] Get profile
+- [ ] Print profile (TUI)
+- [ ] Set profile (TUI)
+- [ ] Select relay server (TUI)
+- [ ] Save using relay server
+- [ ] Get timeline
+- [ ] Print timeline (TUI) 
+- [ ] Post message (TUI)
+- [ ] Like message (TUI)
+- [ ] Follow user (TUI)
+- [ ] Unfollow user (TUI)
+- [ ] Sign up
 
 ## Contributing
 First off, thanks for taking the time to contribute! See [CONTRIBUTING.md](./CONTRIBUTING.md) for more information.  Contributions are not only related to development. For example, GitHub Star and [GitHub Sponsor](https://github.com/sponsors/nao1215) motivates me to develop!
 
 **Star History**
-[WIP]
 
-**For Developers**
-When adding new features or fixing bugs, please write unit tests.
-
-![Unit Test Tree Map](./doc/img/cover-tree.svg)
-
+[![Star History Chart](https://api.star-history.com/svg?repos=nao1215/honeycomb&type=Date)](https://star-history.com/#nao1215/honeycomb&Date)
 
 ## Contact
 If you would like to send comments such as "find a bug" or "request for additional features" to the developer, please use one of the following contacts.
