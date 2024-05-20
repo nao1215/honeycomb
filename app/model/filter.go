@@ -31,3 +31,16 @@ func MyFollowFilter(publicKey PublicKey) nostr.Filter {
 		Limit:   1,
 	}
 }
+
+// FollowsTimelineFilter returns the filter for the timeline.
+func FollowsTimelineFilter(publicKeys []PublicKey, limit int) nostr.Filter {
+	pks := make([]string, len(publicKeys))
+	for i, pk := range publicKeys {
+		pks[i] = pk.String()
+	}
+	return nostr.Filter{
+		Kinds:   []int{nostr.KindTextNote},
+		Authors: pks,
+		Limit:   limit,
+	}
+}

@@ -15,17 +15,14 @@ var _ usecase.ProfileGetter = (*ProfileGetter)(nil)
 
 // ProfileGetter implements the ProfileGetter interface.
 type ProfileGetter struct {
-	service.RelayFinder
 	service.EventsLister
 }
 
 // NewProfileGetter creates a new ProfileGetter.
 func NewProfileGetter(
-	relayFinder service.RelayFinder,
 	profileGetter service.EventsLister,
 ) *ProfileGetter {
 	return &ProfileGetter{
-		RelayFinder:  relayFinder,
 		EventsLister: profileGetter,
 	}
 }
