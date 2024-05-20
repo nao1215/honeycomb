@@ -17,4 +17,6 @@ var Set = wire.NewSet(
 	wire.Bind(new(usecase.FollowLister), new(*FollowLister)),
 	NewPoster,
 	wire.Bind(new(usecase.Poster), new(*Poster)),
+	NewTimelineLister,
+	wire.Bind(new(usecase.TimelineLister), new(*TimelineLister)),
 )

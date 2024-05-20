@@ -37,7 +37,7 @@ func Run() error {
 	}
 	defer authorOutput.Author.Close() //nolint:errcheck
 
-	follow, err := honeyComb.ListFollow(ctx, &usecase.FollowListerInput{
+	follows, err := honeyComb.ListFollow(ctx, &usecase.FollowListerInput{
 		PublicKey:      authorOutput.Author.PublicKey,
 		ConnectedRelay: authorOutput.Author.ConnectedRelay,
 	})
@@ -64,11 +64,27 @@ func Run() error {
 	fmt.Println("[NpublicKey]")
 	fmt.Printf("%s\n\n", authorOutput.Author.NPublicKey)
 
-	for i, v := range follow.Follows {
+	for i, v := range follows.Follows {
 		fmt.Printf("[Follow:%d]\n", i+1)
 		fmt.Printf("DisplayName:%s\n", v.Profile.DisplayName)
 		fmt.Printf("Public Key:%s\n", v.PublicKey)
 	}
+	fmt.Println()
+
+	timeline, err := honeyComb.ListTimeline(ctx, &usecase.TimelineListerInput{
+		Follows:        follows.Follows,
+		Limit:          100,
+		ConnectedRelay: authorOutput.Author.ConnectedRelay,
+	})
+	if err != nil {
+		return err
+	}
+	for i, v := range timeline.Posts {
+		fmt.Printf("[Post:%d]\n", i+1)
+		fmt.Printf("Author:%s\n", v.Author.Name)
+		fmt.Printf("Content:%s\n", v.Content)
+	}
+
 	fmt.Println()
 	fmt.Println("work in progress...🐝")
 	return nil

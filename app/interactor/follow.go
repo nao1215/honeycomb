@@ -12,17 +12,14 @@ var _ usecase.FollowLister = (*FollowLister)(nil)
 
 // FollowLister is the interactor that wraps the basic FollowLister method.
 type FollowLister struct {
-	service.RelayFinder
 	service.EventsLister
 }
 
 // NewFollowLister is the constructor of the FollowLister interactor.
 func NewFollowLister(
-	relayFinder service.RelayFinder,
 	eventsLister service.EventsLister,
 ) *FollowLister {
 	return &FollowLister{
-		RelayFinder:  relayFinder,
 		EventsLister: eventsLister,
 	}
 }

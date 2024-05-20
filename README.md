@@ -9,6 +9,7 @@
 > [!CAUTION]
 > Work in progress. Not ready for production.
 > Development just started on May 17, 2024. I plan to spend about one hour per day on the project.
+> Please do not use honeycomb yet, as it fetches data automatically after being executed.
 
 Honeycomb is an application that uses the Nostr Protocol to post messages and view trends from the terminal. It is designed to offer both a Command Line Interface and a Text User Interface.
 
@@ -58,7 +59,7 @@ ESC or <Ctrl-C>:quit  Enter:submit
 - [ ] Set profile (TUI)
 - [ ] Select relay server (TUI)
 - [ ] Save using relay server
-- [ ] Get timeline
+- [x] Get timeline
 - [ ] Print timeline (TUI) 
 - [ ] Post message (TUI)
 - [ ] Like message (TUI)

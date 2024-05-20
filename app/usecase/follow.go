@@ -15,7 +15,7 @@ type FollowListerInput struct {
 
 // FollowListerOutput is the output of the FollowLister method.
 type FollowListerOutput struct {
-	Follows []*model.Follow // Follows is the list of follow user.
+	Follows model.Follows // Follows is the list of follow user.
 }
 
 // FollowLister is the interface that wraps the basic FollowLister method.
