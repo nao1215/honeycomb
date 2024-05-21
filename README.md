@@ -11,6 +11,8 @@
 > Development just started on May 17, 2024. I plan to spend about one hour per day on the project.
 > Please do not use honeycomb yet, as it fetches data automatically after being executed.
 
+![sample](doc/img/new_sample.gif)
+
 Honeycomb is an application that uses the Nostr Protocol to post messages and view trends from the terminal. It is designed to offer both a Command Line Interface and a Text User Interface.
 
 My main purposes for developing Honeycomb are the following:
