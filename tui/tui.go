@@ -2,11 +2,9 @@ package tui
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/nao1215/honeycomb/app/di"
-	"github.com/nao1215/honeycomb/app/model"
 	"github.com/rivo/tview"
 )
 
@@ -31,59 +29,7 @@ type TUI struct {
 	viewModel *viewModel
 }
 
-// viewModel is the view model.
-type viewModel struct {
-	author      *model.Author
-	follows     *model.Follows
-	timeline    []*model.Post
-	currentView *currentView
-}
-
-// NewTUI creates a new TUI.
-func NewTUI(ctx context.Context, hc *di.HoneyComb) *TUI {
-	tui := &TUI{
-		ctx:       ctx,
-		timeline:  initTimelineTextView(),
-		trend:     initTrendTextView(),
-		follow:    initFollowTextView(),
-		follower:  initFollowerTextView(),
-		profile:   initProfileTextView(),
-		setting:   initSettingTextView(),
-		main:      initMainTextView(),
-		footer:    initFooterTextView(),
-		honeycomb: hc,
-		app:       tview.NewApplication(),
-	}
-
-	tui.horizontalFlex = tview.NewFlex().
-		AddItem(tui.timeline, 0, 1, false).
-		AddItem(tui.trend, 0, 1, false).
-		AddItem(tui.follow, 0, 1, false).
-		AddItem(tui.follower, 0, 1, false).
-		AddItem(tui.profile, 0, 1, false).
-		AddItem(tui.setting, 0, 1, false)
-
-	tui.verticalFlex = tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(tui.horizontalFlex, 3, 1, false).
-		AddItem(tui.main, 0, 4, false).
-		AddItem(tui.footer, 1, 1, false)
-
-	tui.app.SetInputCapture(tui.keyBindings)
-	return tui
-}
-
-// Run starts the TUI.
-func (t *TUI) Run() error {
-	if err := t.initializeViewModel(); err != nil {
-		return err
-	}
-	if err := t.writePosts(); err != nil {
-		return err
-	}
-
-	return t.app.SetRoot(t.verticalFlex, true).Run()
-}
-
+// keyBindings handles key bindings.
 func (t *TUI) keyBindings(event *tcell.EventKey) *tcell.EventKey {
 	row, column := t.main.GetScrollOffset()
 	switch event.Key() {
@@ -122,126 +68,31 @@ func (t *TUI) keyBindings(event *tcell.EventKey) *tcell.EventKey {
 	return event
 }
 
-// updateViews changes the current view.
-func (t *TUI) updateViews() error {
-	t.clearAllTextViews()
-	if err := t.updateViewText(); err != nil {
-		return err
-	}
-	return nil
-}
-
-// clearAllTextViews clears the text views.
-func (t *TUI) clearAllTextViews() {
-	t.timeline.Clear()
-	t.trend.Clear()
-	t.follow.Clear()
-	t.follower.Clear()
-	t.profile.Clear()
-	t.setting.Clear()
-	t.main.Clear()
-	t.footer.Clear()
-}
-
-// updateViewText sets the text view text.
-func (t *TUI) updateViewText() error {
-	t.updateHeaderView()
-	if err := t.updateMainTextView(); err != nil {
-		return err
-	}
-	t.updateFooter()
-	return nil
-}
-
-// updateMainTextView sets the main text view text.
-func (t *TUI) updateMainTextView() error {
+// mouseHandler handles mouse events in the main text view.
+func (t *TUI) mouseHandler(event *tcell.EventMouse, action tview.MouseAction) (*tcell.EventMouse, tview.MouseAction) {
 	switch *t.viewModel.currentView {
 	case currentViewTimeline:
-		if err := t.writePosts(); err != nil {
-			return err
-		}
-	case currentViewTrend:
-		t.main.SetText("Trend")
-	case currentViewFollow:
-		t.main.SetText("Follow")
-	case currentViewFollower:
-		t.main.SetText("Follower")
-	case currentViewProfile:
-		t.main.SetText("Profile")
-	case currentViewSetting:
-		t.main.SetText("Setting")
-	}
-	return nil
-}
-
-// updateHeaderView highlights the header.
-func (t *TUI) updateHeaderView() {
-	if *t.viewModel.currentView == currentViewTimeline {
-		t.timeline.SetText(t.viewModel.currentView.stringWithBee())
-	} else {
-		t.timeline.SetText(currentViewTimeline.string())
-	}
-
-	if *t.viewModel.currentView == currentViewTrend {
-		t.trend.SetText(t.viewModel.currentView.stringWithBee())
-	} else {
-		t.trend.SetText(currentViewTrend.string())
-	}
-
-	if *t.viewModel.currentView == currentViewFollow {
-		t.follow.SetText(t.viewModel.currentView.stringWithBee())
-	} else {
-		t.follow.SetText(currentViewFollow.string())
-	}
-
-	if *t.viewModel.currentView == currentViewFollower {
-		t.follower.SetText(t.viewModel.currentView.stringWithBee())
-	} else {
-		t.follower.SetText(currentViewFollower.string())
-	}
-
-	if *t.viewModel.currentView == currentViewProfile {
-		t.profile.SetText(t.viewModel.currentView.stringWithBee())
-	} else {
-		t.profile.SetText(currentViewProfile.string())
-	}
-
-	if *t.viewModel.currentView == currentViewSetting {
-		t.setting.SetText(t.viewModel.currentView.stringWithBee())
-	} else {
-		t.setting.SetText(currentViewSetting.string())
+		return t.timelineMouseHandler(event, action)
+	default:
+		return event, action
 	}
 }
 
-// updateFooter sets the footer text.
-func (t *TUI) updateFooter() {
-	switch *t.viewModel.currentView {
-	case currentViewTimeline:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
-	case currentViewTrend:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
-	case currentViewFollow:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
-	case currentViewFollower:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
-	case currentViewProfile:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
-	case currentViewSetting:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
-	}
-}
+// timelineMouseHandler handles mouse events in the timeline view.
+func (t *TUI) timelineMouseHandler(event *tcell.EventMouse, action tview.MouseAction) (*tcell.EventMouse, tview.MouseAction) {
+	if action == tview.MouseLeftClick {
+		_, y := event.Position()
+		lineOffset, _ := t.main.GetScrollOffset()
+		clickedLine := y + lineOffset
 
-// writePosts writes posts to the main text view.
-func (t *TUI) writePosts() error {
-	for _, post := range t.viewModel.timeline {
-		displayName := post.Author.DisplayName
-		if displayName == "" {
-			displayName = post.Author.Name
-		}
-		content := post.Content
-		if _, err := t.main.Write([]byte(fmt.Sprintf("[yellow]%s[white]\n%s\n\n", displayName, content))); err != nil {
-			return err
+		// Find the post that was clicked on
+		for _, postRange := range t.viewModel.postRanges {
+			if clickedLine >= postRange.startLine && clickedLine < postRange.startLine+postRange.lineCount {
+				// clickedPost := postRange.post
+				// TODO: Handle the clicked post as needed
+				return nil, action // consume the event
+			}
 		}
 	}
-	return nil
+	return event, action
 }
