@@ -235,6 +235,9 @@ func (t *TUI) updateFooter() {
 func (t *TUI) writePosts() error {
 	for _, post := range t.viewModel.timeline {
 		displayName := post.Author.DisplayName
+		if displayName == "" {
+			displayName = post.Author.Name
+		}
 		content := post.Content
 		if _, err := t.main.Write([]byte(fmt.Sprintf("[yellow]%s[white]\n%s\n\n", displayName, content))); err != nil {
 			return err

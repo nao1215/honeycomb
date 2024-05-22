@@ -52,7 +52,7 @@ func (c *currentView) prev() {
 func (c currentView) string() string {
 	switch c {
 	case currentViewTimeline:
-		return "Timeline"
+		return "TL"
 	case currentViewTrend:
 		return "Trend"
 	case currentViewFollow:
@@ -72,7 +72,7 @@ func (c currentView) string() string {
 func (c *currentView) stringWithBee() string {
 	switch *c {
 	case currentViewTimeline:
-		return "🐝  Timeline  🐝"
+		return "🐝  TL  🐝"
 	case currentViewTrend:
 		return "🐝  Trend  🐝"
 	case currentViewFollow:
