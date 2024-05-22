@@ -59,7 +59,7 @@ func (t *TUI) initializeViewModel() error {
 func initTimelineTextView() *tview.TextView {
 	timeline := tview.NewTextView()
 	timeline.SetBorder(true).SetBorderColor(tcell.ColorWhite)
-	timeline.SetTextAlign(tview.AlignCenter).SetTextColor(tcell.ColorWhite).SetText("🐝  Timeline")
+	timeline.SetTextAlign(tview.AlignCenter).SetTextColor(tcell.ColorWhite).SetText("🐝  TL  🐝")
 	return timeline
 }
 
