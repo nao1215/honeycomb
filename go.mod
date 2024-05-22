@@ -12,6 +12,7 @@ require (
 	github.com/muesli/termenv v0.15.2
 	github.com/nbd-wtf/go-nostr v0.31.2
 	github.com/rivo/tview v0.0.0-20240519200218-0ac5f73025a8
+	github.com/shogo82148/pointer v1.3.0
 	github.com/spf13/cobra v1.8.0
 )
 

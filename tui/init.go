@@ -6,10 +6,11 @@ import (
 	"github.com/nao1215/honeycomb/app/model"
 	"github.com/nao1215/honeycomb/app/usecase"
 	"github.com/rivo/tview"
+	"github.com/shogo82148/pointer"
 )
 
-// reloadViewModel reloads the view model.
-func (t *TUI) reloadViewModel() error {
+// initializeViewModel reloads the view model.
+func (t *TUI) initializeViewModel() error {
 	nsecKey, err := model.ReadNSecretKey()
 	if err != nil {
 		// TODO: rewrite to use tview
@@ -46,9 +47,10 @@ func (t *TUI) reloadViewModel() error {
 	}
 
 	t.viewModel = &viewModel{
-		author:   author.Author,
-		follows:  &follows.Follows,
-		timeline: timeline.Posts,
+		author:      author.Author,
+		follows:     &follows.Follows,
+		timeline:    timeline.Posts,
+		currentView: pointer.Ptr(currentViewTimeline),
 	}
 	return nil
 }
