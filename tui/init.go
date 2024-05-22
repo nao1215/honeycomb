@@ -107,10 +107,23 @@ func (t *TUI) initializeViewModel() error {
 		return err
 	}
 
+	myPosts, err := t.honeycomb.ListTimeline(t.ctx, &usecase.TimelineListerInput{
+		Follows: model.Follows{{
+			PublicKey: author.Author.PublicKey,
+			Profile:   *author.Author.Profile,
+		}},
+		Limit:          20,
+		ConnectedRelay: author.Author.ConnectedRelay,
+	})
+	if err != nil {
+		return err
+	}
+
 	t.viewModel = &viewModel{
 		author:      author.Author,
 		follows:     &follows.Follows,
 		timeline:    timeline.Posts,
+		myPosts:     myPosts.Posts,
 		currentView: pointer.Ptr(currentViewTimeline),
 	}
 	return nil
