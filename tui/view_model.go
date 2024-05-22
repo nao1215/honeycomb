@@ -7,6 +7,7 @@ type viewModel struct {
 	author      *model.Author
 	follows     *model.Follows
 	timeline    []*model.Post
+	myPosts     []*model.Post
 	currentView *currentView
 	postRanges  []*postRange
 }

@@ -188,12 +188,24 @@ func (t *TUI) writeProfile() error {
 		website = "No website"
 	}
 
-	text := fmt.Sprintf("[yellow]%s[white]\nWebsite=%s\n%s\n\n",
+	text := fmt.Sprintf("[yellow]%s[white]\nWebsite=%s\n%s\n\n\n\n",
 		displayName,
 		website,
 		profile.About)
 	if _, err := t.main.Write([]byte(text)); err != nil {
 		return err
+	}
+
+	for _, post := range t.viewModel.myPosts {
+		displayName := post.Author.DisplayName
+		if displayName == "" {
+			displayName = post.Author.Name
+		}
+		postText := fmt.Sprintf("[yellow]%s[white]\n%s\n\n", displayName, post.Content)
+
+		if _, err := t.main.Write([]byte(postText)); err != nil {
+			return err
+		}
 	}
 	return nil
 }
