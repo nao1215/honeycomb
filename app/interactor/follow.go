@@ -66,6 +66,10 @@ func (f *FollowLister) ListFollow(ctx context.Context, input *usecase.FollowList
 			return nil, err
 		}
 
+		if len(eo.Events) == 0 {
+			continue
+		}
+
 		profiles, err := toProfiles(eo.Events)
 		if err != nil {
 			return nil, err

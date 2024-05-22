@@ -5,8 +5,38 @@ import (
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/muesli/termenv"
 	"github.com/nao1215/honeycomb/app/model"
 )
+
+// status is the status of the honeycomb operation.
+type status uint
+
+const (
+	// statusNone is the status when the honeycomb operation is not executed.
+	statusNone status = iota
+	// statusPrivateKeyInput is the status when the private key input view is displayed.
+	statusPrivateKeyInput
+	// statusPrivateKeyValidateErr is the status when the private key validation error occurs.
+	statusPrivateKeyValidateErr
+	// statusPrivateKeySaveErr is the status when the private key save error occurs.
+	statusPrivateKeySaveErr
+)
+
+// subtle returns a string with a subtle color.
+func subtle(message string) string {
+	return termenv.String(message).Foreground(termenv.ColorProfile().Color("241")).String()
+}
+
+// red returns a string with a red color.
+func red(message string) string {
+	return termenv.String(message).Foreground(termenv.ColorProfile().Color("196")).String()
+}
+
+// green returns a string with a green color.
+func green(message string) string {
+	return termenv.String(message).Foreground(termenv.ColorProfile().Color("46")).String()
+}
 
 // privateKeyInputModel is the model for the private key input view.
 type privateKeyInputModel struct {

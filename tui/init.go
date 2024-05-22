@@ -1,13 +1,74 @@
 package tui
 
 import (
+	"context"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gdamore/tcell/v2"
+	"github.com/nao1215/honeycomb/app/di"
 	"github.com/nao1215/honeycomb/app/model"
 	"github.com/nao1215/honeycomb/app/usecase"
 	"github.com/rivo/tview"
 	"github.com/shogo82148/pointer"
 )
+
+// Run starts the TUI.
+func Run() error {
+	ctx := context.Background()
+	honeyComb, err := di.NewHoneyComb(ctx)
+	if err != nil {
+		return err
+	}
+	tui := newTUI(ctx, honeyComb)
+	return tui.run()
+}
+
+// newTUI creates a new TUI.
+func newTUI(ctx context.Context, hc *di.HoneyComb) *TUI {
+	tui := &TUI{
+		ctx:       ctx,
+		timeline:  initTimelineTextView(),
+		trend:     initTrendTextView(),
+		follow:    initFollowTextView(),
+		follower:  initFollowerTextView(),
+		profile:   initProfileTextView(),
+		setting:   initSettingTextView(),
+		main:      initMainTextView(),
+		footer:    initFooterTextView(),
+		honeycomb: hc,
+		app:       tview.NewApplication(),
+	}
+
+	tui.horizontalFlex = tview.NewFlex().
+		AddItem(tui.timeline, 0, 1, false).
+		AddItem(tui.trend, 0, 1, false).
+		AddItem(tui.follow, 0, 1, false).
+		AddItem(tui.follower, 0, 1, false).
+		AddItem(tui.profile, 0, 1, false).
+		AddItem(tui.setting, 0, 1, false)
+
+	tui.verticalFlex = tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(tui.horizontalFlex, 3, 1, false).
+		AddItem(tui.main, 0, 4, false).
+		AddItem(tui.footer, 1, 1, false)
+
+	tui.app.SetInputCapture(tui.keyBindings)
+	tui.app.SetMouseCapture(tui.mouseHandler)
+	tui.app.EnableMouse(true)
+	tui.app.EnablePaste(true)
+	return tui
+}
+
+// run starts the TUI.
+func (t *TUI) run() error {
+	if err := t.initializeViewModel(); err != nil {
+		return err
+	}
+	if err := t.writePosts(); err != nil {
+		return err
+	}
+	return t.app.SetRoot(t.verticalFlex, true).Run()
+}
 
 // initializeViewModel reloads the view model.
 func (t *TUI) initializeViewModel() error {
@@ -39,7 +100,7 @@ func (t *TUI) initializeViewModel() error {
 
 	timeline, err := t.honeycomb.ListTimeline(t.ctx, &usecase.TimelineListerInput{
 		Follows:        follows.Follows,
-		Limit:          100,
+		Limit:          50,
 		ConnectedRelay: author.Author.ConnectedRelay,
 	})
 	if err != nil {
