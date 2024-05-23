@@ -1,3 +1,4 @@
+// Package tui provides the text-based user interface.
 package tui
 
 import (
