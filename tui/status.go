@@ -4,24 +4,27 @@ package tui
 type currentView int
 
 const (
+	currentViewMin currentView = currentViewTimeline
 	// currentVierTimeline is the current view when the timeline view is displayed.
-	currentViewTimeline currentView = iota
+	currentViewTimeline currentView = 1
 	// currentViewTrend is the current view when the trend view is displayed.
-	currentViewTrend
+	currentViewTrend currentView = 2
 	// currentViewFollow is the current view when the follow view is displayed.
-	currentViewFollow
+	currentViewFollow currentView = 3
 	// currentViewFollower is the current view when the follower view is displayed.
-	currentViewFollower
+	currentViewFollower currentView = 4
 	// currentViewProfile is the current view when the profile view is displayed.
-	currentViewProfile
+	currentViewProfile currentView = 5
 	// currentViewSetting is the current view when the setting view is displayed.
-	currentViewSetting
+	currentViewSetting currentView = 6
+	// currentViewMax is the maximum value of the current view.
+	currentViewMax = currentViewSetting
 )
 
 // next moves the current view to the next view.
 func (c *currentView) next() {
 	*c++
-	if *c > currentViewSetting {
+	if *c > currentViewMax {
 		*c = currentViewTimeline
 	}
 }
@@ -29,7 +32,7 @@ func (c *currentView) next() {
 // prev moves the current view to the previous view.
 func (c *currentView) prev() {
 	*c--
-	if *c < currentViewTimeline {
+	if *c < currentViewMin {
 		*c = currentViewSetting
 	}
 }
@@ -72,4 +75,22 @@ func (c *currentView) stringWithBee() string {
 	default:
 		return ""
 	}
+}
+
+// postFormVisible is the visibility of the post form.
+type postFormVisible bool
+
+// invisible hides the post form.
+func (p *postFormVisible) invisible() {
+	*p = false
+}
+
+// visible shows the post form.
+func (p *postFormVisible) visible() {
+	*p = true
+}
+
+// isVisble returns true if the post form is visible.
+func (p *postFormVisible) isVisible() bool {
+	return bool(*p)
 }

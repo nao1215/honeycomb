@@ -24,6 +24,9 @@ type TUI struct {
 	horizontalFlex *tview.Flex
 	verticalFlex   *tview.Flex
 
+	postForm        *tview.Form
+	postFormVisible *postFormVisible
+
 	honeycomb *di.HoneyComb
 	app       *tview.Application
 	viewModel *viewModel
@@ -31,6 +34,17 @@ type TUI struct {
 
 // keyBindings handles key bindings.
 func (t *TUI) keyBindings(event *tcell.EventKey) *tcell.EventKey {
+	if t.postFormVisible.isVisible() {
+		switch event.Key() {
+		case tcell.KeyEsc:
+			t.postFormVisible.invisible()
+			t.app.SetRoot(t.verticalFlex, true)
+			return nil
+		default:
+			return event
+		}
+	}
+
 	row, column := t.main.GetScrollOffset()
 	switch event.Key() {
 	case tcell.KeyEsc, tcell.KeyCtrlC:
@@ -64,6 +78,9 @@ func (t *TUI) keyBindings(event *tcell.EventKey) *tcell.EventKey {
 		t.main.ScrollTo(row+1, column)
 	case 'k':
 		t.main.ScrollTo(row-1, column)
+	case 'p':
+		t.postFormVisible.visible()
+		t.app.SetRoot(t.postForm, true).EnableMouse(true)
 	}
 	return event
 }

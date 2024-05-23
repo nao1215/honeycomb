@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 
+	"github.com/nao1215/honeycomb/app/usecase"
 	"github.com/rivo/tview"
 )
 
@@ -41,7 +42,7 @@ func (t *TUI) updateViewText() error {
 func (t *TUI) updateMainTextView() error {
 	switch *t.viewModel.currentView {
 	case currentViewTimeline:
-		if err := t.writePosts(); err != nil {
+		if err := t.writeTimeline(); err != nil {
 			return err
 		}
 	case currentViewTrend:
@@ -105,23 +106,23 @@ func (t *TUI) updateHeaderView() {
 func (t *TUI) updateFooter() {
 	switch *t.viewModel.currentView {
 	case currentViewTimeline:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
+		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	case currentViewTrend:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
+		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	case currentViewFollow:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
+		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	case currentViewFollower:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
+		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	case currentViewProfile:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
+		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	case currentViewSetting:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB>")
+		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	}
 }
 
-// writePosts writes posts to the main text view.
+// writeTimeline writes timeline posts to the main text view.
 // It also sets the post ranges. The post ranges are used to determine which post is selected.
-func (t *TUI) writePosts() error {
+func (t *TUI) writeTimeline() error {
 	lineCount := 0
 	t.viewModel.postRanges = nil // Clear previous post ranges
 
@@ -208,4 +209,29 @@ func (t *TUI) writeProfile() error {
 		}
 	}
 	return nil
+}
+
+// writePost handles the post action.
+func (t *TUI) writePost() {
+	textArea, ok := t.postForm.GetFormItem(0).(*tview.TextArea)
+	if !ok {
+		return // TODO: error handling
+	}
+	text := textArea.GetText()
+	if text == "" {
+		return
+	}
+
+	_, err := t.honeycomb.Post(t.ctx, &usecase.PosterInput{
+		Content:        text,
+		PrivateKey:     t.viewModel.author.PrivateKey,
+		NPublicKey:     t.viewModel.author.NPublicKey,
+		ConnectedRelay: t.viewModel.author.ConnectedRelay,
+	})
+	if err != nil {
+		// TODO: error handling
+		panic(err)
+	}
+	t.postFormVisible.invisible()
+	t.app.SetRoot(t.verticalFlex, true)
 }

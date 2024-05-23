@@ -46,6 +46,11 @@ func (a *AuthorGetter) GetAuthor(ctx context.Context, input *usecase.AuthorGette
 		return nil, err
 	}
 
+	privateKey, err := input.NSecretKey.ToPrivateKey()
+	if err != nil {
+		return nil, err
+	}
+
 	npub, err := pub.ToNPublicKey()
 	if err != nil {
 		return nil, err
@@ -68,6 +73,7 @@ func (a *AuthorGetter) GetAuthor(ctx context.Context, input *usecase.AuthorGette
 		Author: &model.Author{
 			NSecretKey: input.NSecretKey,
 			PublicKey:  pub,
+			PrivateKey: privateKey,
 			NPublicKey: npub,
 			Profile:    profiles[0],
 			Relays: map[model.WSS]model.Relay{
