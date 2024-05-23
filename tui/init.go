@@ -26,17 +26,18 @@ func Run() error {
 // newTUI creates a new TUI.
 func newTUI(ctx context.Context, hc *di.HoneyComb) *TUI {
 	tui := &TUI{
-		ctx:       ctx,
-		timeline:  initTimelineTextView(),
-		trend:     initTrendTextView(),
-		follow:    initFollowTextView(),
-		follower:  initFollowerTextView(),
-		profile:   initProfileTextView(),
-		setting:   initSettingTextView(),
-		main:      initMainTextView(),
-		footer:    initFooterTextView(),
-		honeycomb: hc,
-		app:       tview.NewApplication(),
+		ctx:             ctx,
+		timeline:        initTimelineTextView(),
+		trend:           initTrendTextView(),
+		follow:          initFollowTextView(),
+		follower:        initFollowerTextView(),
+		profile:         initProfileTextView(),
+		setting:         initSettingTextView(),
+		main:            initMainTextView(),
+		footer:          initFooterTextView(),
+		postFormVisible: pointer.Ptr(postFormVisible(false)),
+		honeycomb:       hc,
+		app:             tview.NewApplication(),
 	}
 
 	tui.horizontalFlex = tview.NewFlex().
@@ -52,10 +53,13 @@ func newTUI(ctx context.Context, hc *di.HoneyComb) *TUI {
 		AddItem(tui.main, 0, 4, false).
 		AddItem(tui.footer, 1, 1, false)
 
+	tui.initPostForm()
+
 	tui.app.SetInputCapture(tui.keyBindings)
 	tui.app.SetMouseCapture(tui.mouseHandler)
 	tui.app.EnableMouse(true)
 	tui.app.EnablePaste(true)
+
 	return tui
 }
 
@@ -64,7 +68,9 @@ func (t *TUI) run() error {
 	if err := t.initializeViewModel(); err != nil {
 		return err
 	}
-	if err := t.writePosts(); err != nil {
+	defer t.viewModel.author.Close() //nolint:errcheck
+
+	if err := t.writeTimeline(); err != nil {
 		return err
 	}
 	return t.app.SetRoot(t.verticalFlex, true).Run()
@@ -88,7 +94,6 @@ func (t *TUI) initializeViewModel() error {
 	if err != nil {
 		return err
 	}
-	defer author.Author.Close() //nolint:errcheck
 
 	follows, err := t.honeycomb.ListFollow(t.ctx, &usecase.FollowListerInput{
 		PublicKey:      author.Author.PublicKey,
@@ -191,4 +196,19 @@ func initFooterTextView() *tview.TextView {
 	footer := tview.NewTextView()
 	footer.SetTextAlign(tview.AlignLeft).SetTextColor(tcell.ColorLightGoldenrodYellow).SetText("  Quit:<ESC>, 'q'")
 	return footer
+}
+
+// initPostForm initializes the post form.
+func (t *TUI) initPostForm() {
+	t.postForm = tview.NewForm().
+		AddTextArea("", "", 100, 10, 1000, nil).
+		AddButton("Post", t.writePost).
+		AddButton("Cancel", func() {
+			t.postFormVisible.invisible()
+			t.app.SetRoot(t.verticalFlex, true)
+		})
+
+	t.postForm.GetButton(0).SetBackgroundColor(tcell.ColorGreen)
+	t.postForm.GetButton(1).SetBackgroundColor(tcell.ColorRed)
+	t.postForm.SetBorder(true).SetTitle("🐝  New Post  🐝").SetTitleAlign(tview.AlignCenter)
 }
