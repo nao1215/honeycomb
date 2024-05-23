@@ -2,14 +2,15 @@ package tui
 
 import (
 	"context"
+	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gdamore/tcell/v2"
 	"github.com/nao1215/honeycomb/app/di"
 	"github.com/nao1215/honeycomb/app/model"
 	"github.com/nao1215/honeycomb/app/usecase"
 	"github.com/rivo/tview"
 	"github.com/shogo82148/pointer"
+	"golang.design/x/clipboard"
 )
 
 // Run starts the TUI.
@@ -65,7 +66,18 @@ func newTUI(ctx context.Context, hc *di.HoneyComb) *TUI {
 
 // run starts the TUI.
 func (t *TUI) run() error {
-	if err := t.initializeViewModel(); err != nil {
+	nsecKey, err := model.ReadNSecretKey()
+	if err != nil {
+		nsecKey, err = showNSecretKeyForm()
+		if err != nil {
+			return err
+		}
+		if nsecKey == "" {
+			return nil
+		}
+	}
+
+	if err := t.initializeViewModel(nsecKey); err != nil {
 		return err
 	}
 	defer t.viewModel.author.Close() //nolint:errcheck
@@ -77,17 +89,7 @@ func (t *TUI) run() error {
 }
 
 // initializeViewModel reloads the view model.
-func (t *TUI) initializeViewModel() error {
-	nsecKey, err := model.ReadNSecretKey()
-	if err != nil {
-		// TODO: rewrite to use tview
-		p := tea.NewProgram(newPrivateKeyInputModel())
-		if _, err := p.Run(); err != nil {
-			return err
-		}
-		return nil
-	}
-
+func (t *TUI) initializeViewModel(nsecKey model.NSecretKey) error {
 	author, err := t.honeycomb.GetAuthor(t.ctx, &usecase.AuthorGetterInput{
 		NSecretKey: nsecKey,
 	})
@@ -194,21 +196,37 @@ func initMainTextView() *tview.TextView {
 // initFooterTextView initializes the footer text view.
 func initFooterTextView() *tview.TextView {
 	footer := tview.NewTextView()
-	footer.SetTextAlign(tview.AlignLeft).SetTextColor(tcell.ColorLightGoldenrodYellow).SetText("  Quit:<ESC>, 'q'")
+	footer.SetTextAlign(tview.AlignLeft).SetTextColor(tcell.ColorLightGoldenrodYellow).SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	return footer
 }
 
 // initPostForm initializes the post form.
 func (t *TUI) initPostForm() {
-	t.postForm = tview.NewForm().
-		AddTextArea("", "", 100, 10, 1000, nil).
-		AddButton("Post", t.writePost).
-		AddButton("Cancel", func() {
-			t.postFormVisible.invisible()
-			t.app.SetRoot(t.verticalFlex, true)
-		})
+	t.postForm = tview.NewForm().AddTextArea("", "", 100, 10, 1000, nil)
+	t.postForm.AddButton("Post", t.writePost)
+	t.postForm.AddButton("Cancel", func() {
+		t.postFormVisible.invisible()
+		t.app.SetRoot(t.verticalFlex, true)
+	})
 
-	t.postForm.GetButton(0).SetBackgroundColor(tcell.ColorGreen)
-	t.postForm.GetButton(1).SetBackgroundColor(tcell.ColorRed)
+	t.postForm.SetMouseCapture(func(action tview.MouseAction, event *tcell.EventMouse) (tview.MouseAction, *tcell.EventMouse) {
+		if action == tview.MouseRightClick {
+			err := clipboard.Init()
+			if err != nil {
+				showError(t.app, err.Error())
+				return action, event
+			}
+
+			clipText := strings.TrimSpace(string(clipboard.Read(clipboard.FmtText)))
+			textArea, ok := t.postForm.GetFormItem(0).(*tview.TextArea)
+			if !ok {
+				showError(t.app, "Failed to read post input field.")
+				return action, event
+			}
+			textArea.SetText(clipText, true)
+			return tview.MouseConsumed, nil
+		}
+		return action, event
+	})
 	t.postForm.SetBorder(true).SetTitle("🐝  New Post  🐝").SetTitleAlign(tview.AlignCenter)
 }

@@ -9,7 +9,6 @@
 > [!CAUTION]
 > Work in progress. Not ready for production.
 > Development just started on May 17, 2024. I plan to spend about one hour per day on the project.
-> Please do not use honeycomb yet, as it fetches data automatically after being executed.
 
 ![sample](doc/img/new_sample.gif)
 
@@ -17,8 +16,9 @@ Honeycomb is an application that uses the Nostr Protocol to post messages and vi
 
 My main purposes for developing Honeycomb are the following:
 
-To create a comfortable social network as an alternative to X (formerly Twitter) and BlueSky.
-To serve as a testing ground for trying out new technologies.
+- To create a comfortable social network as an alternative to X (formerly Twitter) and BlueSky.
+- To serve as a testing ground for trying out new technologies.
+
 I enjoy having a free environment and working in the terminal. Therefore, I intend to develop a user-friendly CLI.
 
 ## How to install
@@ -39,36 +39,34 @@ brew install nao1215/tap/honeycomb
 - go 1.21 or later
 
 ## How to use
-Work in progress. The features described are currently in an implemented status.
 
 ### Log in with an existing account
-Honeycomb checks for the presence of a private key available at `${XDG_CONFIG_HOME}/.config/honeycomb/private_key`. If no private key is found, the user will be prompted to enter one. Honeycomb validates the private key and only stores the correct private key locally.
+Honeycomb checks for the presence of a private key (e.g. nsec**) available at `${XDG_CONFIG_HOME}/.config/honeycomb/private_key`. If no private key is found, honeycomb will prompt you to enter your private key.   
 
-```shell
-$ honeycomb 
-🐝 Please input a private key that starts with 'nsec'.
-🐝 The private key will be saved to /home/nao/.config/honeycomb/private_key
+Honeycomb validates the private key and stores the correct private key locally. 
+The feature to create a new account using Honeycomb is not yet implemented. However, we plan to offer this functionality in the future.
 
-> nsec-...                                                         
 
-ESC or <Ctrl-C>:quit  Enter:submit
-```
-※ cannot log in with an existing account yet.
+![login](./doc/img/nseckey-input.png)
 
-### Implement status
-- [x] Get profile
-- [ ] Print profile (TUI)
-- [ ] Set profile (TUI)
-- [ ] Select relay server (TUI)
-- [ ] Save using relay server
-- [x] Get timeline
-- [ ] Print timeline (TUI) 
-- [ ] Post message (TUI)
-- [ ] Like message (TUI)
-- [x] Get Follow user
-- [ ] List up Follow user (TUI)
-- [ ] Unfollow user (TUI)
-- [ ] Sign up
+### View timeline, follow users, and more
+Once you have logged in, you can view your timeline, follow users, and more. Now, we have several tabs that are not yet implemented.
+
+![timeline](./doc/img/timeline.png)
+![follow](./doc/img/follow.png)
+
+### Post a message
+You can post a message by pressing the `p` key. The message will be displayed in the timeline of the users who follow you.
+
+![post](./doc/img/post.png)
+
+
+### Key bindings
+- `Ctrl + C`, `q`, `<ESC>`: Exit
+- `TAB` : Switch tabs
+- `SHIFT + TAB` : Switch tabs in reverse order
+- ↑, ↓ : Move cursor
+- `p` : Show post form
 
 ## Contributing
 First off, thanks for taking the time to contribute! See [CONTRIBUTING.md](./CONTRIBUTING.md) for more information.  Contributions are not only related to development. For example, GitHub Star and [GitHub Sponsor](https://github.com/sponsors/nao1215) motivates me to develop!

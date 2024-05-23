@@ -46,19 +46,19 @@ func (t *TUI) updateMainTextView() error {
 			return err
 		}
 	case currentViewTrend:
-		t.main.SetText("Trend")
+		t.main.SetText("Trend: not implemented yet")
 	case currentViewFollow:
 		if err := t.writeFollows(); err != nil {
 			return err
 		}
 	case currentViewFollower:
-		t.main.SetText("Follower")
+		t.main.SetText("Follower: not implemented yet")
 	case currentViewProfile:
 		if err := t.writeProfile(); err != nil {
 			return err
 		}
 	case currentViewSetting:
-		t.main.SetText("Setting")
+		t.main.SetText("Setting: not implemented yet")
 	}
 	return nil
 }
@@ -215,10 +215,12 @@ func (t *TUI) writeProfile() error {
 func (t *TUI) writePost() {
 	textArea, ok := t.postForm.GetFormItem(0).(*tview.TextArea)
 	if !ok {
-		return // TODO: error handling
+		showError(t.app, "Failed to read post input field.")
+		return
 	}
 	text := textArea.GetText()
 	if text == "" {
+		showError(t.app, "Post content is empty.")
 		return
 	}
 
@@ -229,8 +231,8 @@ func (t *TUI) writePost() {
 		ConnectedRelay: t.viewModel.author.ConnectedRelay,
 	})
 	if err != nil {
-		// TODO: error handling
-		panic(err)
+		showError(t.app, err.Error())
+		return
 	}
 	t.postFormVisible.invisible()
 	t.app.SetRoot(t.verticalFlex, true)
