@@ -52,7 +52,8 @@ The feature to create a new account using Honeycomb is not yet implemented. Howe
 ### View timeline, follow users, and more
 Once you have logged in, you can view your timeline, follow users, and more. Now, we have several tabs that are not yet implemented.
 
-![timeline](./doc/img/timeline.png)
+![timeline](./doc/img/timeline.png)  
+  
 ![follow](./doc/img/follow.png)
 
 ### Reaction to messages
