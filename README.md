@@ -7,8 +7,7 @@
 [![reviewdog](https://github.com/nao1215/honeycomb/actions/workflows/reviewdog.yml/badge.svg)](https://github.com/nao1215/honeycomb/actions/workflows/reviewdog.yml)
 
 > [!CAUTION]
-> Work in progress. Not ready for production.
-> Development just started on May 17, 2024. I plan to spend about one hour per day on the project.
+> Work in progress. Development just started on May 17, 2024. Some features are not yet implemented.
 
 ![sample](doc/img/new_sample.gif)
 
@@ -51,6 +50,8 @@ The feature to create a new account using Honeycomb is not yet implemented. Howe
 
 ### View timeline, follow users, and more
 Once you have logged in, you can view your timeline, follow users, and more. Now, we have several tabs that are not yet implemented.
+
+Press 'R' to retrieve the latest timeline. Continuously scrolling down on the timeline screen will automatically fetch older posts.
 
 ![timeline](./doc/img/timeline.png)  
   

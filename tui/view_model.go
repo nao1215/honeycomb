@@ -6,8 +6,8 @@ import "github.com/nao1215/honeycomb/app/model"
 type viewModel struct {
 	author      *model.Author
 	follows     *model.Follows
-	timeline    []*model.Post
-	myPosts     []*model.Post
+	timeline    model.Posts
+	myPosts     model.Posts
 	currentView *currentView
 	postRanges  []*postRange
 }
