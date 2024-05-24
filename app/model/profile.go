@@ -12,3 +12,11 @@ type Profile struct {
 	Name        string `json:"name"`         // Name is the user's name.
 	Bot         bool   `json:"bot"`          // Bot is true if the user is a bot.
 }
+
+// DisplayNameOrName returns the display name or name.
+func (p *Profile) DisplayNameOrName() string {
+	if p.DisplayName != "" {
+		return p.DisplayName
+	}
+	return p.Name
+}

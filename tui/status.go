@@ -77,20 +77,20 @@ func (c *currentView) stringWithBee() string {
 	}
 }
 
-// postFormVisible is the visibility of the post form.
-type postFormVisible bool
+// visible is the visibility of the post form.
+type visible bool
 
 // invisible hides the post form.
-func (p *postFormVisible) invisible() {
+func (p *visible) invisible() {
 	*p = false
 }
 
 // visible shows the post form.
-func (p *postFormVisible) visible() {
+func (p *visible) visible() {
 	*p = true
 }
 
 // isVisble returns true if the post form is visible.
-func (p *postFormVisible) isVisible() bool {
+func (p *visible) isVisible() bool {
 	return bool(*p)
 }
