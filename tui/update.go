@@ -2,7 +2,10 @@ package tui
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/gdamore/tcell/v2"
+	"github.com/nao1215/honeycomb/app/model"
 	"github.com/nao1215/honeycomb/app/usecase"
 	"github.com/rivo/tview"
 )
@@ -120,28 +123,33 @@ func (t *TUI) updateFooter() {
 	}
 }
 
+const (
+	// headerOffsetLineCount is the number of lines occupied by the header.
+	headerOffsetLineCount = 4
+)
+
 // writeTimeline writes timeline posts to the main text view.
 // It also sets the post ranges. The post ranges are used to determine which post is selected.
 func (t *TUI) writeTimeline() error {
-	lineCount := 0
+	lineCount := headerOffsetLineCount
 	t.viewModel.postRanges = nil // Clear previous post ranges
 
-	for _, post := range t.viewModel.timeline {
-		displayName := post.Author.DisplayName
-		if displayName == "" {
-			displayName = post.Author.Name
-		}
-		postText := fmt.Sprintf("[yellow]%s[white]\n%s\n\n", displayName, post.Content)
-		_, _, width, _ := t.main.GetInnerRect()
-		lines := tview.WordWrap(postText, width)
+	width, _, err := screenSize()
+	if err != nil {
+		return err
+	}
 
+	for _, post := range t.viewModel.timeline {
+		postText := fmt.Sprintf("[yellow]%s[white]\n%s\n\n", post.Author.DisplayNameOrName(), post.Content)
+
+		totalLines := countWrappedLines(fmt.Sprintf("%s\n%s\n\n", post.Author.DisplayNameOrName(), post.Content), width)
 		postRange := postRange{
 			post:      post,
 			startLine: lineCount,
-			lineCount: len(lines),
+			lineCount: totalLines,
 		}
 		t.viewModel.postRanges = append(t.viewModel.postRanges, &postRange)
-		lineCount += len(lines)
+		lineCount += totalLines + 1 // +1 for the extra newline after the post
 
 		if _, err := t.main.Write([]byte(postText)); err != nil {
 			return err
@@ -150,13 +158,46 @@ func (t *TUI) writeTimeline() error {
 	return nil
 }
 
+// screenSize returns the screen size.
+func screenSize() (int, int, error) {
+	s, _ := tcell.NewScreen()
+	if err := s.Init(); err != nil {
+		return 0, 0, err
+	}
+	cols, rows := s.Size()
+	s.Fini()
+	return cols, rows, nil
+}
+
+// countWrappedLines counts the number of lines that text will occupy when wrapped to the given width.
+func countWrappedLines(text string, width int) int {
+	lines := strings.Split(text, "\n")
+	fmt.Printf("%s\nlines=%d, width=%d", text, len(lines), width)
+	lineCount := 0
+
+	for _, line := range lines {
+		words := strings.Fields(line)
+		currentLineLength := 0
+
+		for _, word := range words {
+			if currentLineLength+len(word)+1 > width { // +1 for the space
+				lineCount++
+				currentLineLength = 0
+			}
+			currentLineLength += len(word) + 1
+		}
+
+		if currentLineLength > 0 {
+			lineCount++
+		}
+	}
+	return lineCount
+}
+
 // writeFollows writes follows to the main text view.
 func (t *TUI) writeFollows() error {
 	for _, follow := range *t.viewModel.follows {
-		displayName := follow.Profile.DisplayName
-		if displayName == "" {
-			displayName = follow.Profile.Name
-		}
+		displayName := follow.Profile.DisplayNameOrName()
 
 		website := follow.Profile.Website
 		if website == "" {
@@ -179,11 +220,7 @@ func (t *TUI) writeFollows() error {
 func (t *TUI) writeProfile() error {
 	profile := t.viewModel.author.Profile
 
-	displayName := profile.DisplayName
-	if displayName == "" {
-		displayName = profile.Name
-	}
-
+	displayName := profile.DisplayNameOrName()
 	website := profile.Website
 	if website == "" {
 		website = "No website"
@@ -198,10 +235,7 @@ func (t *TUI) writeProfile() error {
 	}
 
 	for _, post := range t.viewModel.myPosts {
-		displayName := post.Author.DisplayName
-		if displayName == "" {
-			displayName = post.Author.Name
-		}
+		displayName := post.Author.DisplayNameOrName()
 		postText := fmt.Sprintf("[yellow]%s[white]\n%s\n\n", displayName, post.Content)
 
 		if _, err := t.main.Write([]byte(postText)); err != nil {
@@ -236,4 +270,31 @@ func (t *TUI) writePost() {
 	}
 	t.postFormVisible.invisible()
 	t.app.SetRoot(t.verticalFlex, true)
+}
+
+// showPostModal displays a modal with the post content and buttons.
+func (t *TUI) showPostModal(post *model.Post) {
+	postText := fmt.Sprintf("[yellow]%s\n[white]\n%s", post.Author.DisplayNameOrName(), post.Content)
+	modal := tview.NewModal().
+		SetText(postText).
+		AddButtons([]string{"Reply", "Repost", "Like", "Unlike", "Zap"}).
+		SetDoneFunc(func(buttonIndex int, _ string) {
+			switch buttonIndex {
+			case 0: // Reply
+				// TODO: implement
+			case 1: // Repost
+				// TODO: implement
+			case 2: // Like
+				// TODO: implement
+			case 3: // Unlike
+				// TODO:implement
+			case 4: // Zap
+				// TODO: implement
+			}
+			t.postModalVisible.invisible()
+			t.app.SetRoot(t.verticalFlex, true)
+		})
+
+	t.postModalVisible.visible()
+	t.app.SetRoot(modal, true)
 }

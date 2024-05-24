@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/adrg/xdg v0.4.0
+	github.com/gdamore/tcell v1.4.0
 	github.com/gdamore/tcell/v2 v2.7.4
 	github.com/google/go-cmp v0.6.0
 	github.com/google/wire v0.6.0

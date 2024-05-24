@@ -55,6 +55,11 @@ Once you have logged in, you can view your timeline, follow users, and more. Now
 ![timeline](./doc/img/timeline.png)
 ![follow](./doc/img/follow.png)
 
+### Reaction to messages
+Honeycomb allows you to react to posts. The reactions will include Reply, Repost, Like, Unlike, and Zap (not yet implemented). The reaction modal can be displayed by right-clicking on a post or by pressing the Enter key to select the topmost post.
+
+![reaction](./doc/img/reaction.png)
+
 ### Post a message
 You can post a message by pressing the `p` key. The message will be displayed in the timeline of the users who follow you.
 

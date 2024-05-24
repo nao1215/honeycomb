@@ -27,18 +27,19 @@ func Run() error {
 // newTUI creates a new TUI.
 func newTUI(ctx context.Context, hc *di.HoneyComb) *TUI {
 	tui := &TUI{
-		ctx:             ctx,
-		timeline:        initTimelineTextView(),
-		trend:           initTrendTextView(),
-		follow:          initFollowTextView(),
-		follower:        initFollowerTextView(),
-		profile:         initProfileTextView(),
-		setting:         initSettingTextView(),
-		main:            initMainTextView(),
-		footer:          initFooterTextView(),
-		postFormVisible: pointer.Ptr(postFormVisible(false)),
-		honeycomb:       hc,
-		app:             tview.NewApplication(),
+		ctx:              ctx,
+		timeline:         initTimelineTextView(),
+		trend:            initTrendTextView(),
+		follow:           initFollowTextView(),
+		follower:         initFollowerTextView(),
+		profile:          initProfileTextView(),
+		setting:          initSettingTextView(),
+		main:             initMainTextView(),
+		footer:           initFooterTextView(),
+		postFormVisible:  pointer.Ptr(visible(false)),
+		postModalVisible: pointer.Ptr(visible(false)),
+		honeycomb:        hc,
+		app:              tview.NewApplication(),
 	}
 
 	tui.horizontalFlex = tview.NewFlex().

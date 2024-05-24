@@ -25,8 +25,9 @@ type TUI struct {
 	horizontalFlex *tview.Flex
 	verticalFlex   *tview.Flex
 
-	postForm        *tview.Form
-	postFormVisible *postFormVisible
+	postForm         *tview.Form
+	postFormVisible  *visible
+	postModalVisible *visible
 
 	honeycomb *di.HoneyComb
 	app       *tview.Application
@@ -35,10 +36,11 @@ type TUI struct {
 
 // keyBindings handles key bindings.
 func (t *TUI) keyBindings(event *tcell.EventKey) *tcell.EventKey {
-	if t.postFormVisible.isVisible() {
+	if t.postFormVisible.isVisible() || t.postModalVisible.isVisible() {
 		switch event.Key() {
 		case tcell.KeyEsc:
 			t.postFormVisible.invisible()
+			t.postModalVisible.invisible()
 			t.app.SetRoot(t.verticalFlex, true)
 			return nil
 		default:
@@ -70,6 +72,15 @@ func (t *TUI) keyBindings(event *tcell.EventKey) *tcell.EventKey {
 		t.main.ScrollTo(row-10, column)
 	case tcell.KeyPgDn:
 		t.main.ScrollTo(row+10, column)
+	case tcell.KeyEnter:
+		if *t.viewModel.currentView == currentViewTimeline {
+			t.timelineMouseHandler(tcell.NewEventMouse(
+				0, // dummy
+				headerOffsetLineCount,
+				tcell.Button1, // dummy
+				tcell.ModNone, // dummy
+			), tview.MouseLeftClick)
+		}
 	}
 
 	switch event.Rune() {
@@ -106,9 +117,8 @@ func (t *TUI) timelineMouseHandler(event *tcell.EventMouse, action tview.MouseAc
 		// Find the post that was clicked on
 		for _, postRange := range t.viewModel.postRanges {
 			if clickedLine >= postRange.startLine && clickedLine < postRange.startLine+postRange.lineCount {
-				// clickedPost := postRange.post
-				// TODO: Handle the clicked post as needed
-				return nil, action // consume the event
+				t.showPostModal(postRange.post)
+				return nil, action
 			}
 		}
 	}
