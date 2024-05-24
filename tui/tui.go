@@ -6,7 +6,9 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/nao1215/honeycomb/app/di"
+	"github.com/nao1215/honeycomb/app/usecase"
 	"github.com/rivo/tview"
+	"github.com/shogo82148/pointer"
 )
 
 // TUI is the text-based user interface.
@@ -55,23 +57,31 @@ func (t *TUI) keyBindings(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyTab:
 		t.viewModel.currentView.next()
 		if err := t.updateViews(); err != nil {
-			// TODO:  error handling
+			showError(t.app, err.Error())
 			return event
 		}
 	case tcell.KeyBacktab:
 		t.viewModel.currentView.prev()
 		if err := t.updateViews(); err != nil {
-			// TODO:  error handling
+			showError(t.app, err.Error())
 			return event
 		}
 	case tcell.KeyUp:
 		t.main.ScrollTo(row-1, column)
 	case tcell.KeyDown:
 		t.main.ScrollTo(row+1, column)
+		if err := t.appendOldTimelineAndRewriteIfNeeded(); err != nil {
+			showError(t.app, err.Error())
+			return event
+		}
 	case tcell.KeyPgUp:
 		t.main.ScrollTo(row-10, column)
 	case tcell.KeyPgDn:
 		t.main.ScrollTo(row+10, column)
+		if err := t.appendOldTimelineAndRewriteIfNeeded(); err != nil {
+			showError(t.app, err.Error())
+			return event
+		}
 	case tcell.KeyEnter:
 		if *t.viewModel.currentView == currentViewTimeline {
 			t.timelineMouseHandler(tcell.NewEventMouse(
@@ -88,13 +98,58 @@ func (t *TUI) keyBindings(event *tcell.EventKey) *tcell.EventKey {
 		t.app.Stop()
 	case 'j':
 		t.main.ScrollTo(row+1, column)
+		if err := t.appendOldTimelineAndRewriteIfNeeded(); err != nil {
+			showError(t.app, err.Error())
+			return event
+		}
 	case 'k':
 		t.main.ScrollTo(row-1, column)
 	case 'p':
 		t.postFormVisible.visible()
 		t.app.SetRoot(t.postForm, true).EnableMouse(true)
+	case 'R':
+		if err := t.reload(); err != nil {
+			showError(t.app, err.Error())
+			return event
+		}
 	}
 	return event
+}
+
+// reload reloads the viewmodel data.
+func (t *TUI) reload() error {
+	switch *t.viewModel.currentView {
+	case currentViewTimeline:
+		timeline, err := t.honeycomb.ListTimeline(t.ctx, &usecase.TimelineListerInput{
+			Follows:        *t.viewModel.follows,
+			Limit:          15,
+			ConnectedRelay: t.viewModel.author.ConnectedRelay,
+		})
+		if err != nil {
+			return err
+		}
+		t.viewModel.timeline = timeline.Posts
+
+		if err := t.updateViews(); err != nil {
+			return err
+		}
+		t.main.ScrollTo(0, 0)
+	case currentViewFollow:
+		follows, err := t.honeycomb.ListFollow(t.ctx, &usecase.FollowListerInput{
+			PublicKey:      t.viewModel.author.PublicKey,
+			ConnectedRelay: t.viewModel.author.ConnectedRelay,
+		})
+		if err != nil {
+			return err
+		}
+		t.viewModel.follows = pointer.Ptr(follows.Follows)
+
+		if err := t.updateViews(); err != nil {
+			return err
+		}
+		t.main.ScrollTo(0, 0)
+	}
+	return nil
 }
 
 // mouseHandler handles mouse events in the main text view.

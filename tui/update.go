@@ -8,6 +8,7 @@ import (
 	"github.com/nao1215/honeycomb/app/model"
 	"github.com/nao1215/honeycomb/app/usecase"
 	"github.com/rivo/tview"
+	"github.com/shogo82148/pointer"
 )
 
 // updateViews changes the current view.
@@ -103,23 +104,30 @@ func (t *TUI) updateHeaderView() {
 	} else {
 		t.setting.SetText(currentViewSetting.string())
 	}
+
+	t.timeline.SetBackgroundColor(tcell.ColorDefault)
+	t.trend.SetBackgroundColor(tcell.ColorDefault)
+	t.follow.SetBackgroundColor(tcell.ColorDefault)
+	t.follower.SetBackgroundColor(tcell.ColorDefault)
+	t.profile.SetBackgroundColor(tcell.ColorDefault)
+	t.setting.SetBackgroundColor(tcell.ColorDefault)
 }
 
 // updateFooter sets the footer text.
 func (t *TUI) updateFooter() {
 	switch *t.viewModel.currentView {
 	case currentViewTimeline:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
+		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p' | Reload: 'R' | Reaction: <Enter>")
 	case currentViewTrend:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
+		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	case currentViewFollow:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
+		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p' | Reload: 'R'")
 	case currentViewFollower:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
+		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	case currentViewProfile:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
+		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	case currentViewSetting:
-		t.footer.SetText("  Quit:<ESC>, 'q' | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
+		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	}
 }
 
@@ -141,7 +149,6 @@ func (t *TUI) writeTimeline() error {
 
 	for _, post := range t.viewModel.timeline {
 		postText := fmt.Sprintf("[yellow]%s[white]\n%s\n\n", post.Author.DisplayNameOrName(), post.Content)
-
 		totalLines := countWrappedLines(fmt.Sprintf("%s\n%s\n\n", post.Author.DisplayNameOrName(), post.Content), width)
 		postRange := postRange{
 			post:      post,
@@ -151,6 +158,7 @@ func (t *TUI) writeTimeline() error {
 		t.viewModel.postRanges = append(t.viewModel.postRanges, &postRange)
 		lineCount += totalLines + 1 // +1 for the extra newline after the post
 
+		t.main.SetBackgroundColor(tcell.ColorDefault)
 		if _, err := t.main.Write([]byte(postText)); err != nil {
 			return err
 		}
@@ -172,7 +180,6 @@ func screenSize() (int, int, error) {
 // countWrappedLines counts the number of lines that text will occupy when wrapped to the given width.
 func countWrappedLines(text string, width int) int {
 	lines := strings.Split(text, "\n")
-	fmt.Printf("%s\nlines=%d, width=%d", text, len(lines), width)
 	lineCount := 0
 
 	for _, line := range lines {
@@ -297,4 +304,50 @@ func (t *TUI) showPostModal(post *model.Post) {
 
 	t.postModalVisible.visible()
 	t.app.SetRoot(modal, true)
+}
+
+// appendOldTimeline appends the old timeline to the current timeline.
+func (t *TUI) appendOldTimeline() error {
+	oldestPost := t.viewModel.timeline[len(t.viewModel.timeline)-1]
+
+	output, err := t.honeycomb.TimelineLister.ListTimeline(t.ctx, &usecase.TimelineListerInput{
+		Follows:        pointer.Value(t.viewModel.follows),
+		Until:          pointer.Ptr(oldestPost.CreatedAt),
+		ConnectedRelay: t.viewModel.author.ConnectedRelay,
+	})
+	if err != nil {
+		return err
+	}
+	t.viewModel.timeline = append(t.viewModel.timeline, output.Posts...)
+	t.viewModel.timeline.ToUniquePosts()
+	return nil
+}
+
+// appendOldTimelineAndRewriteIfNeeded checks if the timeline needs to be appended and appends if needed.
+func (t *TUI) appendOldTimelineAndRewriteIfNeeded() error {
+	threshold := len(t.viewModel.timeline) - 12
+
+	row, _ := t.main.GetScrollOffset()
+	for i, v := range t.viewModel.postRanges {
+		if row >= v.startLine {
+			if i >= threshold {
+				if err := t.appendOldTimeline(); err != nil {
+					return err
+				}
+				return t.rewriteTimeline()
+			}
+		}
+	}
+	return nil
+}
+
+// rewriteTimeline redraws the timeline while preserving the scroll position.
+func (t *TUI) rewriteTimeline() error {
+	row, column := t.main.GetScrollOffset()
+	t.clearAllTextViews()
+	if err := t.updateViewText(); err != nil {
+		return err
+	}
+	t.main.ScrollTo(row, column)
+	return nil
 }

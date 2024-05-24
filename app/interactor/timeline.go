@@ -27,8 +27,13 @@ func NewTimelineLister(
 // ListTimeline gets the user's timeline.
 func (t *TimelineLister) ListTimeline(ctx context.Context, input *usecase.TimelineListerInput) (*usecase.TimelineListerOutput, error) {
 	eventsOutput, err := t.EventsLister.ListEvents(ctx, &service.EventsListerInput{
-		Filter: model.FollowsTimelineFilter(input.Follows.PublicKeys(), input.Limit),
-		Relay:  input.ConnectedRelay,
+		Filter: model.FollowsTimelineFilter(
+			input.Follows.PublicKeys(),
+			input.Since,
+			input.Until,
+			input.Limit,
+		),
+		Relay: input.ConnectedRelay,
 	})
 	if err != nil {
 		return nil, err
@@ -43,8 +48,10 @@ func (t *TimelineLister) ListTimeline(ctx context.Context, input *usecase.Timeli
 		if !ok {
 			continue
 		}
+
 		post.Author = follow.Profile
 		post.Content = event.Content
+		post.CreatedAt = event.CreatedAt
 		posts = append(posts, post)
 	}
 	return &usecase.TimelineListerOutput{

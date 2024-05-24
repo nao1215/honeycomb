@@ -33,7 +33,7 @@ func MyFollowFilter(publicKey PublicKey) nostr.Filter {
 }
 
 // FollowsTimelineFilter returns the filter for the timeline.
-func FollowsTimelineFilter(publicKeys []PublicKey, limit int) nostr.Filter {
+func FollowsTimelineFilter(publicKeys []PublicKey, since, until *nostr.Timestamp, limit int) nostr.Filter {
 	pks := make([]string, len(publicKeys))
 	for i, pk := range publicKeys {
 		pks[i] = pk.String()
@@ -41,6 +41,8 @@ func FollowsTimelineFilter(publicKeys []PublicKey, limit int) nostr.Filter {
 	return nostr.Filter{
 		Kinds:   []int{nostr.KindTextNote},
 		Authors: pks,
+		Since:   since,
+		Until:   until,
 		Limit:   limit,
 	}
 }

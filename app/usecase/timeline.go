@@ -9,9 +9,11 @@ import (
 
 // TimelineListerInput is the input of the ListTimeline method.
 type TimelineListerInput struct {
-	Follows        model.Follows // Follows is the list of follow user.
-	Limit          int           // Limit is the number of posts to get.
-	ConnectedRelay *nostr.Relay  // ConnectedRelay is the connected relay
+	Follows        model.Follows    // Follows is the list of follow user.
+	Since          *nostr.Timestamp // Since is the time to get posts from.
+	Until          *nostr.Timestamp // Until is the time to get posts until.
+	Limit          int              // Limit is the number of posts to get.
+	ConnectedRelay *nostr.Relay     // ConnectedRelay is the connected relay
 }
 
 // TimelineListerOutput is the output of the ListTimeline method.
