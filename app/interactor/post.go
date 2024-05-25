@@ -12,15 +12,15 @@ var _ usecase.Poster = (*Poster)(nil)
 
 // Poster implements the Poster interface.
 type Poster struct {
-	service.Poster
+	service.Publisher
 }
 
 // NewPoster creates a new Poster.
 func NewPoster(
-	poster service.Poster,
+	poster service.Publisher,
 ) *Poster {
 	return &Poster{
-		Poster: poster,
+		Publisher: poster,
 	}
 }
 
@@ -39,7 +39,7 @@ func (p *Poster) Post(ctx context.Context, input *usecase.PosterInput) (*usecase
 		return nil, err
 	}
 
-	if _, err := p.Poster.Post(ctx, &service.PosterInput{
+	if _, err := p.Publisher.Publish(ctx, &service.PublisherInput{
 		Event:          event,
 		ConnectedRelay: input.ConnectedRelay,
 	}); err != nil {

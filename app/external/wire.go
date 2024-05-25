@@ -13,6 +13,6 @@ var Set = wire.NewSet(
 	wire.Bind(new(service.RelayFinder), new(*RelayFinder)),
 	NewEventsLister,
 	wire.Bind(new(service.EventsLister), new(*EventsLister)),
-	NewPoster,
-	wire.Bind(new(service.Poster), new(*Poster)),
+	NewPublisher,
+	wire.Bind(new(service.Publisher), new(*Publisher)),
 )

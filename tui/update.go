@@ -233,23 +233,25 @@ func (t *TUI) showPostModal(post *model.Post) {
 	postText := fmt.Sprintf("[yellow]%s\n[white]\n%s", post.Author.DisplayNameOrName(), post.Content)
 	modal := tview.NewModal().
 		SetText(postText).
-		AddButtons([]string{"Reply", "Repost", "Like", "Unlike", "Zap"}).
+		AddButtons([]string{"Like"}).
 		SetDoneFunc(func(buttonIndex int, _ string) {
 			switch buttonIndex {
-			case 0: // Reply
-				// TODO: implement
-			case 1: // Repost
-				// TODO: implement
-			case 2: // Like
-				// TODO: implement
-			case 3: // Unlike
-				// TODO:implement
-			case 4: // Zap
-				// TODO: implement
+			case 0: // Like
+				if _, err := t.honeycomb.Like(t.ctx, &usecase.LikerInput{
+					PostID:         post.ID,
+					PrivateKey:     t.viewModel.author.PrivateKey,
+					ConnectedRelay: t.viewModel.author.ConnectedRelay,
+				}); err != nil {
+					t.postModalVisible.invisible()
+					t.app.SetRoot(t.verticalFlex, true)
+					showError(t.app, err.Error())
+					return
+				}
 			}
 			t.postModalVisible.invisible()
 			t.app.SetRoot(t.verticalFlex, true)
 		})
+
 	modal.SetBackgroundColor(tcell.ColorDefault)
 	modal.SetButtonStyle(tcell.StyleDefault)
 	modal.SetBorder(false)

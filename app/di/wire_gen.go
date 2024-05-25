@@ -22,10 +22,11 @@ func NewHoneyComb(ctx context.Context) (*HoneyComb, error) {
 	authorGetter := interactor.NewAuthorGetter(relayFinder, eventsLister)
 	profileGetter := interactor.NewProfileGetter(eventsLister)
 	followLister := interactor.NewFollowLister(eventsLister)
-	poster := external.NewPoster()
-	interactorPoster := interactor.NewPoster(poster)
+	publisher := external.NewPublisher()
+	poster := interactor.NewPoster(publisher)
 	timelineLister := interactor.NewTimelineLister(eventsLister)
-	honeyComb := newHoneyComb(authorGetter, profileGetter, followLister, interactorPoster, timelineLister)
+	liker := interactor.NewLiker(publisher)
+	honeyComb := newHoneyComb(authorGetter, profileGetter, followLister, poster, timelineLister, liker)
 	return honeyComb, nil
 }
 
@@ -40,10 +41,11 @@ type HoneyComb struct {
 	usecase.FollowLister
 	usecase.Poster
 	usecase.TimelineLister
+	usecase.Liker
 
 	// ProfileGetter is the interface that wraps the basic GetProfile method.
 
-	// TimelineLister is the interface that wraps the basic ListTimeline method.
+	// Liker is the interface that wraps the basic Like method.
 }
 
 // newHoneyComb creates a new HoneyComb.
@@ -53,6 +55,7 @@ func newHoneyComb(
 	followLister usecase.FollowLister,
 	poster usecase.Poster,
 	timelineLister usecase.TimelineLister,
+	liker usecase.Liker,
 ) *HoneyComb {
 	return &HoneyComb{
 		AuthorGetter:   authorGetter,
@@ -60,5 +63,6 @@ func newHoneyComb(
 		FollowLister:   followLister,
 		Poster:         poster,
 		TimelineLister: timelineLister,
+		Liker:          liker,
 	}
 }
