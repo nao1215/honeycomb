@@ -58,7 +58,7 @@ Press 'R' to retrieve the latest timeline. Continuously scrolling down on the ti
 ![follow](./doc/img/follow.png)
 
 ### Reaction to messages
-Honeycomb allows you to react to posts. The reactions will include Reply, Repost, Like, Unlike, and Zap (not yet implemented). The reaction modal can be displayed by right-clicking on a post or by pressing the Enter key to select the topmost post.
+Honeycomb allows you to react to posts. The reactions will include Reply, Repost, Like, Unlike, and Zap (not yet implemented). The reaction modal can be displayed by pressing the Enter key to select the topmost post.
 
 ![reaction](./doc/img/reaction.png)
 

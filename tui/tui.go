@@ -16,11 +16,8 @@ type TUI struct {
 	ctx context.Context
 
 	timeline *tview.TextView
-	trend    *tview.TextView
 	follow   *tview.TextView
-	follower *tview.TextView
 	profile  *tview.TextView
-	setting  *tview.TextView
 	main     *tview.TextView
 	footer   *tview.TextView
 
@@ -133,7 +130,6 @@ func (t *TUI) reload() error {
 		if err := t.updateViews(); err != nil {
 			return err
 		}
-		t.main.ScrollTo(0, 0)
 	case currentViewFollow:
 		follows, err := t.honeycomb.ListFollow(t.ctx, &usecase.FollowListerInput{
 			PublicKey:      t.viewModel.author.PublicKey,
@@ -147,19 +143,16 @@ func (t *TUI) reload() error {
 		if err := t.updateViews(); err != nil {
 			return err
 		}
-		t.main.ScrollTo(0, 0)
 	}
 	return nil
 }
 
 // mouseHandler handles mouse events in the main text view.
 func (t *TUI) mouseHandler(event *tcell.EventMouse, action tview.MouseAction) (*tcell.EventMouse, tview.MouseAction) {
-	switch *t.viewModel.currentView {
-	case currentViewTimeline:
-		return t.timelineMouseHandler(event, action)
-	default:
-		return event, action
-	}
+	// Previously, you had to right-click a post to react to it. With this specification,
+	// it wasn't possible to click on any links within the post.
+	// Therefore, this specification has been removed.
+	return event, action
 }
 
 // timelineMouseHandler handles mouse events in the timeline view.
