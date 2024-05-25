@@ -29,11 +29,8 @@ func newTUI(ctx context.Context, hc *di.HoneyComb) *TUI {
 	tui := &TUI{
 		ctx:              ctx,
 		timeline:         initTimelineTextView(),
-		trend:            initTrendTextView(),
 		follow:           initFollowTextView(),
-		follower:         initFollowerTextView(),
 		profile:          initProfileTextView(),
-		setting:          initSettingTextView(),
 		main:             initMainTextView(),
 		footer:           initFooterTextView(),
 		postFormVisible:  pointer.Ptr(visible(false)),
@@ -44,11 +41,8 @@ func newTUI(ctx context.Context, hc *di.HoneyComb) *TUI {
 
 	tui.horizontalFlex = tview.NewFlex().
 		AddItem(tui.timeline, 0, 1, false).
-		AddItem(tui.trend, 0, 1, false).
 		AddItem(tui.follow, 0, 1, false).
-		AddItem(tui.follower, 0, 1, false).
-		AddItem(tui.profile, 0, 1, false).
-		AddItem(tui.setting, 0, 1, false)
+		AddItem(tui.profile, 0, 1, false)
 
 	tui.verticalFlex = tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(tui.horizontalFlex, 3, 1, false).
@@ -140,57 +134,37 @@ func (t *TUI) initializeViewModel(nsecKey model.NSecretKey) error {
 // initTimelineTextView initializes the timeline text view.
 func initTimelineTextView() *tview.TextView {
 	timeline := tview.NewTextView()
-	timeline.SetBorder(true).SetBorderColor(tcell.ColorWhite).SetBackgroundColor(tcell.ColorDefault)
+	timeline.SetBorder(true).SetBorderColor(tcell.ColorWhite)
 	timeline.SetTextAlign(tview.AlignCenter).SetTextColor(tcell.ColorWhite).SetText("🐝  TL  🐝")
+	timeline.SetBackgroundColor(tcell.ColorDefault)
 	return timeline
-}
-
-// initTrendTextView initializes the trend text view.
-func initTrendTextView() *tview.TextView {
-	trend := tview.NewTextView()
-	trend.SetBorder(true).SetBorderColor(tcell.ColorWhite).SetBackgroundColor(tcell.ColorDefault)
-	trend.SetTextAlign(tview.AlignCenter).SetTextColor(tcell.ColorWhite).SetText("Trend")
-	return trend
 }
 
 // initFollowTextView initializes the follow text view.
 func initFollowTextView() *tview.TextView {
 	follow := tview.NewTextView()
-	follow.SetBorder(true).SetBorderColor(tcell.ColorWhite).SetBackgroundColor(tcell.ColorDefault)
+	follow.SetBorder(true).SetBorderColor(tcell.ColorWhite)
 	follow.SetTextAlign(tview.AlignCenter).SetTextColor(tcell.ColorWhite).SetText("Follow")
+	follow.SetBackgroundColor(tcell.ColorDefault)
 	return follow
-}
-
-// initFollowerTextView initializes the follower text view.
-func initFollowerTextView() *tview.TextView {
-	follower := tview.NewTextView()
-	follower.SetBorder(true).SetBorderColor(tcell.ColorWhite).SetBackgroundColor(tcell.ColorDefault)
-	follower.SetTextAlign(tview.AlignCenter).SetTextColor(tcell.ColorWhite).SetText("Follower")
-	return follower
 }
 
 // initProfileTextView initializes the profile text view.
 func initProfileTextView() *tview.TextView {
 	profile := tview.NewTextView()
-	profile.SetBorder(true).SetBorderColor(tcell.ColorWhite).SetBackgroundColor(tcell.ColorDefault)
+	profile.SetBorder(true).SetBorderColor(tcell.ColorWhite)
 	profile.SetTextAlign(tview.AlignCenter).SetTextColor(tcell.ColorWhite).SetText("Profile")
+	profile.SetBackgroundColor(tcell.ColorDefault)
 	return profile
-}
-
-// initSettingTextView initializes the setting text view.
-func initSettingTextView() *tview.TextView {
-	setting := tview.NewTextView()
-	setting.SetBorder(true).SetBorderColor(tcell.ColorWhite).SetBackgroundColor(tcell.ColorDefault)
-	setting.SetTextAlign(tview.AlignCenter).SetTextColor(tcell.ColorWhite).SetText("Setting")
-	return setting
 }
 
 // initMainTextView initializes the main text view.
 func initMainTextView() *tview.TextView {
 	main := tview.NewTextView()
-	main.SetBorder(true).SetBorderColor(tcell.ColorWhite).SetBackgroundColor(tcell.ColorDefault)
+	main.SetBorder(true).SetBorderColor(tcell.ColorWhite)
 	main.SetTextAlign(tview.AlignLeft).SetTextColor(tcell.ColorWhite)
 	main.SetDynamicColors(true).SetScrollable(true)
+	main.SetBackgroundColor(tcell.ColorDefault)
 	return main
 }
 
@@ -207,6 +181,7 @@ func initFooterTextView() *tview.TextView {
 // initPostForm initializes the post form.
 func (t *TUI) initPostForm() {
 	t.postForm = tview.NewForm().AddTextArea("", "", 100, 10, 1000, nil)
+	t.postForm.SetFieldBackgroundColor(tcell.ColorDarkSlateGrey)
 	t.postForm.AddButton("Post", t.writePost)
 	t.postForm.AddButton("Cancel", func() {
 		t.postFormVisible.invisible()
