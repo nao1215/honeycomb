@@ -12,6 +12,7 @@ require (
 	github.com/shogo82148/pointer v1.3.0
 	github.com/spf13/cobra v1.8.0
 	golang.design/x/clipboard v0.7.0
+	golang.org/x/term v0.20.0
 )
 
 require (
@@ -44,7 +45,6 @@ require (
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/term v0.20.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.17.0 // indirect
 )

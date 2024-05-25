@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
@@ -9,60 +10,43 @@ import (
 	"github.com/nao1215/honeycomb/app/usecase"
 	"github.com/rivo/tview"
 	"github.com/shogo82148/pointer"
+	"golang.org/x/term"
 )
 
 // updateViews changes the current view.
 func (t *TUI) updateViews() error {
-	t.clearAllTextViews()
 	if err := t.updateViewText(); err != nil {
 		return err
 	}
 	return nil
 }
 
-// clearAllTextViews clears the text views.
-func (t *TUI) clearAllTextViews() {
-	t.timeline.Clear()
-	t.trend.Clear()
-	t.follow.Clear()
-	t.follower.Clear()
-	t.profile.Clear()
-	t.setting.Clear()
-	t.main.Clear()
-	t.footer.Clear()
-}
-
 // updateViewText sets the text view text.
 func (t *TUI) updateViewText() error {
 	t.updateHeaderView()
-	if err := t.updateMainTextView(); err != nil {
-		return err
-	}
 	t.updateFooter()
-	return nil
+	return t.updateMainTextView()
 }
 
 // updateMainTextView sets the main text view text.
 func (t *TUI) updateMainTextView() error {
+	t.main.Clear()
 	switch *t.viewModel.currentView {
 	case currentViewTimeline:
 		if err := t.writeTimeline(); err != nil {
 			return err
 		}
-	case currentViewTrend:
-		t.main.SetText("Trend: not implemented yet")
+		t.main.ScrollTo(0, 0)
 	case currentViewFollow:
 		if err := t.writeFollows(); err != nil {
 			return err
 		}
-	case currentViewFollower:
-		t.main.SetText("Follower: not implemented yet")
+		t.main.ScrollTo(0, 0)
 	case currentViewProfile:
 		if err := t.writeProfile(); err != nil {
 			return err
 		}
-	case currentViewSetting:
-		t.main.SetText("Setting: not implemented yet")
+		t.main.ScrollTo(0, 0)
 	}
 	return nil
 }
@@ -75,22 +59,10 @@ func (t *TUI) updateHeaderView() {
 		t.timeline.SetText(currentViewTimeline.string())
 	}
 
-	if *t.viewModel.currentView == currentViewTrend {
-		t.trend.SetText(t.viewModel.currentView.stringWithBee())
-	} else {
-		t.trend.SetText(currentViewTrend.string())
-	}
-
 	if *t.viewModel.currentView == currentViewFollow {
 		t.follow.SetText(t.viewModel.currentView.stringWithBee())
 	} else {
 		t.follow.SetText(currentViewFollow.string())
-	}
-
-	if *t.viewModel.currentView == currentViewFollower {
-		t.follower.SetText(t.viewModel.currentView.stringWithBee())
-	} else {
-		t.follower.SetText(currentViewFollower.string())
 	}
 
 	if *t.viewModel.currentView == currentViewProfile {
@@ -98,19 +70,6 @@ func (t *TUI) updateHeaderView() {
 	} else {
 		t.profile.SetText(currentViewProfile.string())
 	}
-
-	if *t.viewModel.currentView == currentViewSetting {
-		t.setting.SetText(t.viewModel.currentView.stringWithBee())
-	} else {
-		t.setting.SetText(currentViewSetting.string())
-	}
-
-	t.timeline.SetBackgroundColor(tcell.ColorDefault)
-	t.trend.SetBackgroundColor(tcell.ColorDefault)
-	t.follow.SetBackgroundColor(tcell.ColorDefault)
-	t.follower.SetBackgroundColor(tcell.ColorDefault)
-	t.profile.SetBackgroundColor(tcell.ColorDefault)
-	t.setting.SetBackgroundColor(tcell.ColorDefault)
 }
 
 // updateFooter sets the footer text.
@@ -118,15 +77,9 @@ func (t *TUI) updateFooter() {
 	switch *t.viewModel.currentView {
 	case currentViewTimeline:
 		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p' | Reload: 'R' | Reaction: <Enter>")
-	case currentViewTrend:
-		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	case currentViewFollow:
 		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p' | Reload: 'R'")
-	case currentViewFollower:
-		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	case currentViewProfile:
-		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
-	case currentViewSetting:
 		t.footer.SetText("  Quit:<ESC> | Next:<TAB> | Prev:<SHIFT-TAB> | Post:'p'")
 	}
 }
@@ -142,11 +95,10 @@ func (t *TUI) writeTimeline() error {
 	lineCount := headerOffsetLineCount
 	t.viewModel.postRanges = nil // Clear previous post ranges
 
-	width, _, err := screenSize()
+	width, _, err := terminalSize()
 	if err != nil {
 		return err
 	}
-
 	for _, post := range t.viewModel.timeline {
 		postText := fmt.Sprintf("[yellow]%s[white]\n%s\n\n", post.Author.DisplayNameOrName(), post.Content)
 		totalLines := countWrappedLines(fmt.Sprintf("%s\n%s\n\n", post.Author.DisplayNameOrName(), post.Content), width)
@@ -158,7 +110,6 @@ func (t *TUI) writeTimeline() error {
 		t.viewModel.postRanges = append(t.viewModel.postRanges, &postRange)
 		lineCount += totalLines + 1 // +1 for the extra newline after the post
 
-		t.main.SetBackgroundColor(tcell.ColorDefault)
 		if _, err := t.main.Write([]byte(postText)); err != nil {
 			return err
 		}
@@ -166,15 +117,13 @@ func (t *TUI) writeTimeline() error {
 	return nil
 }
 
-// screenSize returns the screen size.
-func screenSize() (int, int, error) {
-	s, _ := tcell.NewScreen()
-	if err := s.Init(); err != nil {
+func terminalSize() (width int, height int, err error) {
+	fd := int(os.Stdin.Fd())
+	width, height, err = term.GetSize(fd)
+	if err != nil {
 		return 0, 0, err
 	}
-	cols, rows := s.Size()
-	s.Fini()
-	return cols, rows, nil
+	return width, height, nil
 }
 
 // countWrappedLines counts the number of lines that text will occupy when wrapped to the given width.
@@ -301,6 +250,9 @@ func (t *TUI) showPostModal(post *model.Post) {
 			t.postModalVisible.invisible()
 			t.app.SetRoot(t.verticalFlex, true)
 		})
+	modal.SetBackgroundColor(tcell.ColorDefault)
+	modal.SetButtonStyle(tcell.StyleDefault)
+	modal.SetBorder(false)
 
 	t.postModalVisible.visible()
 	t.app.SetRoot(modal, true)
@@ -344,7 +296,6 @@ func (t *TUI) appendOldTimelineAndRewriteIfNeeded() error {
 // rewriteTimeline redraws the timeline while preserving the scroll position.
 func (t *TUI) rewriteTimeline() error {
 	row, column := t.main.GetScrollOffset()
-	t.clearAllTextViews()
 	if err := t.updateViewText(); err != nil {
 		return err
 	}
