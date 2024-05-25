@@ -22,6 +22,7 @@ type HoneyComb struct {
 	usecase.FollowLister   // FollowLister is the interface that wraps the basic ListFollow method.
 	usecase.Poster         // Poster is the interface that wraps the basic Post method.
 	usecase.TimelineLister // TimelineLister is the interface that wraps the basic ListTimeline method.
+	usecase.Liker          // Liker is the interface that wraps the basic Like method.
 }
 
 // newHoneyComb creates a new HoneyComb.
@@ -31,6 +32,7 @@ func newHoneyComb(
 	followLister usecase.FollowLister,
 	poster usecase.Poster,
 	timelineLister usecase.TimelineLister,
+	liker usecase.Liker,
 ) *HoneyComb {
 	return &HoneyComb{
 		AuthorGetter:   authorGetter,
@@ -38,6 +40,7 @@ func newHoneyComb(
 		FollowLister:   followLister,
 		Poster:         poster,
 		TimelineLister: timelineLister,
+		Liker:          liker,
 	}
 }
 

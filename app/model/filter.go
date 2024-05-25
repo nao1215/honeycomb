@@ -46,3 +46,11 @@ func FollowsTimelineFilter(publicKeys []PublicKey, since, until *nostr.Timestamp
 		Limit:   limit,
 	}
 }
+
+// LikesFilter returns the filter for the likes.
+func LikesFilter(id string) nostr.Filter {
+	return nostr.Filter{
+		Kinds: []int{nostr.KindTextNote},
+		IDs:   []string{id},
+	}
+}
