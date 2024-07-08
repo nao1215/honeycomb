@@ -7,7 +7,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.7.4
 	github.com/google/go-cmp v0.6.0
 	github.com/google/wire v0.6.0
-	github.com/nbd-wtf/go-nostr v0.34.1
+	github.com/nbd-wtf/go-nostr v0.34.2
 	github.com/rivo/tview v0.0.0-20240519200218-0ac5f73025a8
 	github.com/shogo82148/pointer v1.3.0
 	github.com/spf13/cobra v1.8.0
